@@ -1,7 +1,9 @@
 import styles from "./styles.module.css"
 import Image from "next/image"
 
-import imageHome from "../public/Y.svg"
+import imageHome from "../public/y.svg"
+
+import clsx from "clsx"
 
 export default function Page() {
     return(
@@ -34,11 +36,11 @@ function Login() {
         <div className={styles.login}>
             <h2>Y not ?</h2><br/>
 
-            <h2>Subscribe.</h2>
-            <p>Create new account</p><br/>
+            <h3>Sign up.</h3>
+            <button className={clsx(styles.specialbutton, styles.signupbutton)}>Sign up with mail</button><br/>
 
             <p>You already have an account ?</p>
-            <p>Connect</p>
+            <button className={clsx(styles.specialbutton, styles.loginbutton)}>Login</button>
         </div>
     )
 }

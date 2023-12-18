@@ -29,3 +29,58 @@
     flex-wrap: nowrap;
     padding-left: 5%;
 }
+
+.login h2 {
+    font-size: 80px;
+}
+
+.login h3 {
+    font-size: 40px;
+}
+
+.specialbutton {
+    width: 300px;
+    height: 40px;
+    background-color: white;
+    transition: background-color 0.5s;
+    border-width: 1px;
+    border-style: solid;
+    border-radius: 100px;
+    border-color: lightgrey;
+    font-size: 15px;
+    font-weight: bold;
+}
+
+.specialbutton:hover {
+    background-color: rgb(225, 225, 255);
+}
+
+
+.signupbutton {
+    background-color: dodgerblue;
+    color: white;
+}
+
+.signupbutton:hover {
+    background-color: rgb(20, 120, 255);
+}
+
+.loginbutton {
+
+}
+
+@media screen and (max-width: 800px) {
+    .page {
+        flex-direction: column;
+    }
+    .logo {
+        flex-basis: auto;
+        justify-content: flex-start;
+        height: auto;
+        padding-top: 5%;
+        padding-left: 5%;
+    }
+    .imagelogo {
+        max-width: 50px;
+    }
+}

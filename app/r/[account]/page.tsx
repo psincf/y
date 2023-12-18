@@ -17,9 +17,6 @@ export async function generateMetadata(
 export default function Page() {
     return(
         <>
-            <header className={styles.topheader}>
-                <Link href="../"><h1>Y</h1></Link>
-            </header>
             <div className={styles.page}>
                 <Settings></Settings>
                 <Feed></Feed>
