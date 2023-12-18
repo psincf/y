@@ -1,0 +1,38 @@
+.topheader {
+    height: 100px;
+    background-color: black;
+    text-align: center;
+    vertical-align: middle;
+}
+
+.topheader h1 {
+    color: white;
+    display: inline-block;
+    margin-top: 15px;
+    font-size: 48px;
+}
+
+.page {
+    display: flex;
+    flex-direction: row;
+    justify-content: center;
+}
+
+.settings {
+    margin: 0 10px 0 10px;
+    flex-basis: 200px;
+    border: 1px solid gainsboro;
+}
+
+.feed {
+    margin: 0 10px 0 10px;
+    min-height: 50vh;
+    flex-basis: 400px;
+    border: 1px solid gainsboro;
+}
+
+.aside {
+    margin: 0 10px 0 10px;
+    flex-basis: 200px;
+    border: 1px solid gainsboro;
+}
