@@ -1,7 +1,12 @@
 import styles from "./styles.module.css"
 import Link from "next/link"
 
+import Image from "next/image"
+
+import logo from "../../../public/y.svg"
+
 import { Metadata, ResolvingMetadata, GetStaticProps } from "next"
+import clsx from "clsx"
 
 export async function generateMetadata(
     { params, searchParams }: any,
@@ -29,7 +34,14 @@ export default function Page() {
 function Settings() {
     return(
         <div className={styles.settings}>
-            <p>Settings</p>
+            <Link href="../">
+            <Image
+                src={logo}
+                alt="Y"
+                className={clsx(styles.logo, styles.button)}
+            />
+            </Link>
+            <button type="button" className={styles.button}>{"\u2699"} Settings</button>
         </div>
     )
 }

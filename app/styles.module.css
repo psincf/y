@@ -11,12 +11,10 @@
     display: flex;
     justify-content: center;
     align-items: center;
-    width: 50vw;
 }
 
 .imagelogo {
-    object-fit: fill;
-    width: inherit;
+    width: 80%;
     max-width: 400px;
     height: fit-content;
 }
@@ -27,6 +25,7 @@
     flex-direction: column;
     justify-content: center;
     flex-wrap: nowrap;
+    min-width: 600px;
     padding-left: 5%;
 }
 
@@ -72,13 +71,19 @@
 @media screen and (max-width: 800px) {
     .page {
         flex-direction: column;
+        justify-content: flex-start;
     }
     .logo {
         flex-basis: auto;
         justify-content: flex-start;
-        height: auto;
-        padding-top: 5%;
-        padding-left: 5%;
+        height: 50px;
+        padding-left: 10%;
+        padding-top: 10px;
+    }
+    .login {
+        justify-content: flex-start;
+        padding-left: 10%;
+        padding-top: 50px;
     }
     .imagelogo {
         max-width: 50px;

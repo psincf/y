@@ -7,18 +7,40 @@
 .settings {
     margin: 0 10px 0 10px;
     flex-basis: 200px;
-    border: 1px solid gainsboro;
+    border: 1px solid rgb(240, 240, 240);
+}
+
+.logo {
+    padding: 5px;
+    margin-bottom: 20px;
+    width: auto;
 }
 
 .feed {
     margin: 0 10px 0 10px;
     min-height: 50vh;
-    flex-basis: 400px;
-    border: 1px solid gainsboro;
+    flex-basis: 600px;
+    border: 1px solid rgb(240, 240, 240);
 }
 
 .aside {
     margin: 0 10px 0 10px;
-    flex-basis: 200px;
-    border: 1px solid gainsboro;
+    flex-basis: 300px;
+    border: 1px solid rgb(240, 240, 240);
+}
+
+.button {
+    display: block;
+    padding: 10px;
+    height: 50px;
+    background-color: white;
+    transition: background-color 0.5s;
+    border-width: 0;
+    border-radius: 100px;
+    width: fit-content;
+    font-size: 16px;
+}
+
+.button:hover {
+    background-color: rgb(200, 200, 200);
 }
