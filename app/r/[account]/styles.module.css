@@ -1,46 +1,75 @@
 .page {
     display: flex;
+    width: 100%;
     flex-direction: row;
     justify-content: center;
 }
 
 .settings {
+    position: sticky;
+    top: 0;
+    height: 200px;
     margin: 0 10px 0 10px;
     flex-basis: 200px;
-    border: 1px solid rgb(240, 240, 240);
 }
 
 .logo {
     padding: 5px;
-    margin-bottom: 20px;
-    width: auto;
+    height: 50px;
 }
 
 .feed {
+    padding: 0;
     margin: 0 10px 0 10px;
-    min-height: 50vh;
+    min-height: 500vh;
     flex-basis: 600px;
     border: 1px solid rgb(240, 240, 240);
+    border-top: 0;
+}
+
+.topfeed {
+    position: sticky;
+    top: 0;
+    height: 60px;
+    width: 100%;
+    background-color: rgba(255, 255, 255, 0.4);
+    backdrop-filter: blur(4px);
+    display: flex;
+    flex-direction: row;
+    align-items: center;
 }
 
 .aside {
+    position: sticky;
+    top: 0;
+    height: 200px;
     margin: 0 10px 0 10px;
     flex-basis: 300px;
     border: 1px solid rgb(240, 240, 240);
 }
 
 .button {
-    display: block;
     padding: 10px;
-    height: 50px;
     background-color: white;
-    transition: background-color 0.5s;
+    transition: background-color 0.2s;
     border-width: 0;
     border-radius: 100px;
     width: fit-content;
-    font-size: 16px;
+    font-size: 18px;
+    margin-top: 0;
+    color: black;
+    text-decoration: none;
+}
+
+.smallbutton {
+    background-color: rgba(255, 255, 255, 0);
+    padding: 10px;
 }
 
 .button:hover {
-    background-color: rgb(200, 200, 200);
+    background-color: rgb(220, 220, 220);
+}
+
+.button:visited {
+    color: black;
 }

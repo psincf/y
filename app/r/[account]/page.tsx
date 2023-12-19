@@ -41,6 +41,7 @@ function Settings() {
                 className={clsx(styles.logo, styles.button)}
             />
             </Link>
+            <br/>
             <button type="button" className={styles.button}>{"\u2699"} Settings</button>
         </div>
     )
@@ -49,7 +50,9 @@ function Settings() {
 function Feed() {
     return(
         <div className={styles.feed}>
-            <Link href="../">{"\u2190"}</Link>
+            <div className={styles.topfeed}>
+                <Link href="../" className={clsx(styles.button, styles.smallbutton)}>{"\u2190"}</Link>
+            </div>
         </div>
     )
 }
