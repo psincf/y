@@ -1,13 +1,21 @@
 .page {
     display: flex;
+    flex-direction: column;
+    flex-wrap: nowrap;
+    height: 100vh;
+}
+
+.pagecontent {
+    display: flex;
     flex-direction: row;
     justify-content: center;
     flex-wrap: nowrap;
+    flex-grow: 1;
 }
 
 .logo {
     flex-basis: 50vw;
-    height: 100vh;
+    height: 100%;
     display: flex;
     justify-content: center;
     align-items: center;
@@ -48,12 +56,24 @@
     border-color: lightgrey;
     font-size: 15px;
     font-weight: bold;
+
+    display: flex;
+    justify-content: center;
+    align-items: center;
+}
+
+.specialbutton:link {
+    color: inherit;
+    text-decoration: none;
+}
+
+.specialbutton:visited {
+    color: initial;
 }
 
 .specialbutton:hover {
     background-color: rgb(225, 225, 255);
 }
-
 
 .signupbutton {
     background-color: dodgerblue;
@@ -64,12 +84,8 @@
     background-color: rgb(20, 120, 255);
 }
 
-.loginbutton {
-
-}
-
 @media screen and (max-width: 800px) {
-    .page {
+    .pagecontent {
         flex-direction: column;
         justify-content: flex-start;
     }
@@ -84,6 +100,7 @@
         justify-content: flex-start;
         padding-left: 10%;
         padding-top: 50px;
+        min-width: fit-content;
     }
     .imagelogo {
         max-width: 50px;

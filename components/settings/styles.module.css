@@ -1,0 +1,33 @@
+.settings {
+    position: sticky;
+    top: 0;
+    height: 200px;
+    margin: 0 10px 0 10px;
+    flex-basis: 200px;
+}
+
+.logo {
+    padding: 5px;
+    height: 50px;
+}
+
+.button {
+    padding: 10px;
+    background-color: white;
+    transition: background-color 0.2s;
+    border-width: 0;
+    border-radius: 100px;
+    width: fit-content;
+    font-size: 18px;
+    margin-top: 0;
+    color: black;
+    text-decoration: none;
+}
+
+.button:hover {
+    background-color: rgb(220, 220, 220);
+}
+
+.button:visited {
+    color: inherit;
+}

@@ -1,0 +1,42 @@
+.tweet {
+    display: flex;
+    align-items: flex-start;
+    padding: 10px;
+    transition: background-color 0.2s;
+    border: 1px solid rgb(240, 240, 240);
+    border-width: 1px 0 0 0;
+}
+
+.tweet:hover {
+    background-color: lightgrey;
+}
+
+.accountphoto {
+    margin-right: 10px;
+    flex-shrink: 0;
+    width: 50px;
+    height: 50px;
+}
+
+.accountphoto svg {
+    width: 100%;
+    height: 100%;
+    border: 4px transparent solid;
+    border-radius: 10px;
+}
+
+.tweetcontent {
+    flex-grow: 1;
+}
+
+.tweetinfo {
+    display: flex;
+    flex-direction: row;
+    justify-content: space-between;
+    margin-top: 10px;
+    color: grey;
+}
+
+.grey {
+    color: grey;
+}

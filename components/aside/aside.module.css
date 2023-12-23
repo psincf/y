@@ -1,0 +1,42 @@
+.aside {
+    position: sticky;
+    top: 0;
+    height: fit-content;
+    margin: 20px 0px 0 20px;
+    flex-basis: 300px;
+}
+
+.accountpropositioncontainer {
+    background-color: rgb(244, 244, 244);
+    border: 1px transparent solid;
+    border-radius: 10px;
+}
+
+.accountpropositioncontainer > p {
+    font-weight: bold;
+    font-size: x-large;
+}
+
+.accountproposed {
+    margin: 10px 0 10px 0;
+    padding: 10px 0 10px 10px;
+    display: flex;
+    transition: background-color 0.2s;
+    height: 60px;
+    color: black;
+    text-decoration: none;
+}
+
+.accountproposed svg{
+    height: 100%;
+    width: max-content;
+    margin-right: 18px;
+}
+
+.accountproposed:hover {
+    background-color: lightgrey;
+}
+
+.grey {
+    color: grey;
+}

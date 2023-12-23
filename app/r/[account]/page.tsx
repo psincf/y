@@ -1,66 +1,57 @@
+"use client"
+
 import styles from "./styles.module.css"
-import Link from "next/link"
 
-import Image from "next/image"
+import { AccountInterface } from "@/db/db"
 
-import logo from "../../../public/y.svg"
+import { Settings } from "@/components/settings/settings"
+import { Aside } from "@/components/aside/aside"
+import { Feed } from "./feed"
+import { useEffect, useState, useContext } from "react"
+import { dbContext } from "@/app/context"
 
-import { Metadata, ResolvingMetadata, GetStaticProps } from "next"
-import clsx from "clsx"
-
-export async function generateMetadata(
-    { params, searchParams }: any,
-    parent: ResolvingMetadata
-) : Promise<Metadata> {
-    const account = params.account
-
-    return {
-        title: `Account @${account}`
-    }
+enum ConnectionStatus {
+    Connecting,
+    NoAccount,
+    Ok
 }
 
-export default function Page() {
+export default function Page({ params }: { params: { account: string } }) {
+    let [account, setAccount] = useState<null | AccountInterface>(null)
+    let [info, setInfo] = useState(ConnectionStatus.Connecting);
+    let db = useContext(dbContext)
+    let feed;
+
+    useEffect(() => {
+        if (info == ConnectionStatus.Connecting) {
+            db.accounts.where("account").equals(params.account).first().then((acc) => {
+                if (acc == undefined) {
+                    setInfo(ConnectionStatus.NoAccount)
+                } else {
+                    setInfo(ConnectionStatus.Ok)
+                    setAccount(acc!)
+                    document.title = `${acc.name} @${acc.account}`
+                }
+            })
+        }
+    })
+
+    if (info == ConnectionStatus.Connecting) {
+        feed = <div className={styles.feed}>Loading...</div>
+    }
+    else if (info == ConnectionStatus.NoAccount) {
+        feed = <div className={styles.feed}>Do not exist</div>
+    }
+    else {
+        feed = <Feed account={account!}></Feed>
+    }
     return(
         <>
             <div className={styles.page}>
                 <Settings></Settings>
-                <Feed></Feed>
+                {feed}
                 <Aside></Aside>
             </div>
         </>
-    )
-}
-
-function Settings() {
-    return(
-        <div className={styles.settings}>
-            <Link href="../">
-            <Image
-                src={logo}
-                alt="Y"
-                className={clsx(styles.logo, styles.button)}
-            />
-            </Link>
-            <br/>
-            <button type="button" className={styles.button}>{"\u2699"} Settings</button>
-        </div>
-    )
-}
-
-function Feed() {
-    return(
-        <div className={styles.feed}>
-            <div className={styles.topfeed}>
-                <Link href="../" className={clsx(styles.button, styles.smallbutton)}>{"\u2190"}</Link>
-            </div>
-        </div>
-    )
-}
-
-function Aside() {
-    return(
-        <div className={styles.aside}>
-            <p>Aside</p>
-        </div>
     )
 }

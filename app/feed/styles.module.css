@@ -60,6 +60,10 @@
     margin-left: 10px;
 }
 
+.accountid {
+    color: grey;
+}
+
 .wrapbuttonfeedcontent {
     margin-top: 20px;
     height: 40px;
@@ -80,7 +84,6 @@
 
 .buttonfeedcontent:hover {
     background-color: lightgrey;
-    cursor: pointer;
 }
 
 .button {
@@ -107,8 +110,4 @@
 
 .button:visited {
     color: inherit;
-}
-
-.grey {
-    color: grey;
 }
