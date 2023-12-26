@@ -83,6 +83,10 @@
     cursor: pointer;
 }
 
+.active {
+    color: rgb(71, 209, 255);
+}
+
 .button {
     padding: 10px;
     background-color: white;

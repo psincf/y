@@ -22,6 +22,25 @@ export function Tweet({tweet, account }: { tweet: TweetInterface, account: Accou
     }
 
     let photo = convertSVGtoJSX(account.photo)
+    let media = <></>
+    if (tweet.media) {
+        let mediaJSX = convertSVGtoJSX(tweet.media!)
+        media = <div>{mediaJSX}</div>
+    }
+
+    let text = separateSpecialTextTweet(tweet.text)
+    let textJSX = text.map((t) => {
+        if (t.s[0] == "@") {
+            let link = `../r/${t.s.substring(1)}`
+            return(<Link href={link} key={t.key}>{t.s}</Link>)
+        } else {
+            return(<span key={t.key}>{t.s}</span>)
+        }
+    })
+    const tweetJSX = 
+    <>
+    
+    </>
     return(
         <div className={styles.tweet}>
             <Link href={href}>
@@ -30,13 +49,51 @@ export function Tweet({tweet, account }: { tweet: TweetInterface, account: Accou
             <div className={styles.tweetcontent}>
                 <p>{account.name} <span className={styles.grey}>@{account.account} {"\u{00B7}"} {time_string}</span></p>
                 <br/>
-                <p>{tweet.text}</p>
+                <p>{textJSX}</p>
+                {media}
                 <div className={styles.tweetinfo}>
                     <p>{"\u{1f4AC}"} {tweet.comments.length}</p>
                     <p>{"\u{21BB}"} {tweet.retweet.length}</p>
                     <p>{"\u{2661}"} {tweet.likes.size}</p>
+                    <p>{"\u{21A5}"}</p>
                 </div>
             </div>
         </div>
     )
+}
+
+function separateSpecialTextTweet(text: string): Array<{s: string, key: number}> {
+    var stringArray = []
+    var index = 0
+    var key = 0
+    while (true) {
+        if (text.indexOf("@", index) != -1) {
+            var new_index = text.indexOf("@", index)
+            stringArray.push({ s: text.substring(index, new_index), key: key })
+            key += 1
+
+            var indexNextStop = nextNonAccountCharacter(text, new_index + 1)
+            stringArray.push( {s: text.substring(new_index, indexNextStop), key: key })
+            key += 1
+
+            index = indexNextStop
+
+            continue
+        }
+        if (index < text.length) {
+            stringArray.push({s: text.substring(index), key: key })
+        }
+        return stringArray
+    }
+}
+
+function nextNonAccountCharacter(text: string, position: number): number {
+    var index = text.length
+    const nonAccountCharacters = [" ", ",", ".", "@"]
+    for (const c of nonAccountCharacters) {
+        var temp_index = text.indexOf(c, position)
+        if (temp_index != -1) { index = Math.min(index, temp_index) }
+    }
+
+    return index
 }

@@ -1,4 +1,5 @@
 "use client"
+import "@/app/overflowy.css"
 
 import styles from "./styles.module.css"
 
@@ -8,7 +9,7 @@ import { Settings } from "@/components/settings/settings"
 import { Aside } from "@/components/aside/aside"
 import { Feed } from "./feed"
 import { useEffect, useState, useContext } from "react"
-import { dbContext } from "../context"
+import { dbContext } from "@/app/context"
 
 export default function Page() {
     let [localAccount, setLocalAccount] = useState<null | AccountInterface>(null)
@@ -17,11 +18,10 @@ export default function Page() {
     let feed
 
     useEffect(() => {
+        document.title = "Y social network";
         (async() => {
-            await db.init()
-            db.accounts.get(0).then((acc) => {
-                setLocalAccount(acc!)
-            })
+            let acc = await db.accounts.get(0)
+            setLocalAccount(acc!)
         })()
         
     }, [db])

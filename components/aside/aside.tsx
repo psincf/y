@@ -1,3 +1,5 @@
+"use client"
+
 import Link from "next/link"
 
 import { useEffect, useState, useContext } from "react"
@@ -22,9 +24,6 @@ function AccountProposition() {
     let db = useContext(dbContext)
     
     useEffect(() => {
-        if (accounts.length > 0) {
-            return
-        }
         let fn = async () => {
             let count = await db.accounts.count()
             if (count == 0) { setTimeout(fn, 500); return }
@@ -32,12 +31,13 @@ function AccountProposition() {
             for (let i = 0; i < 3; i += 1) {
                 let id = Math.floor(Math.random() * count);
                 let account = (await db.accounts.get(id))!
+                if (account == undefined) { setTimeout(fn, 500); return }
                 accountsTemp.push(account)
             }
             setAccounts(accountsTemp)
         }
         fn()
-    }, [accounts, db])
+    }, [db])
 
     let accountsProposed = []
 

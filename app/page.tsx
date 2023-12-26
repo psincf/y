@@ -43,10 +43,14 @@ function Login() {
             <h2>Y not ?</h2><br/>
 
             <h3>Sign up.</h3>
-            <div className={clsx(styles.specialbutton, styles.signupbutton)}>Sign up</div><br/>
+            <div className={clsx(styles.specialbutton, styles.signupbutton)}>Sign up</div>
+            <br/>
 
             <p>You already have an account ?</p>
             <div className={clsx(styles.specialbutton, styles.loginbutton)}>Login</div>
+            <br/>
+
+            <p>Explore as guest</p>
             <Link href="./feed" className={styles.specialbutton}>
                 Browse feed
             </Link>

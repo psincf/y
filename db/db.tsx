@@ -1,7 +1,7 @@
 import React from "react"
 
 import Dexie, { Table } from "dexie"
-import { createSeed } from "./seed"
+import { SeedCreator } from "./seed"
 
 const amountAccounts = 100
 const amountTweetsAccounts = 10
@@ -10,6 +10,7 @@ export interface TweetInterface {
     id: number
     account: number
     text: string
+    media?: SVGInterface,
     date: Date
     comments: Array<number>
     retweet: Array<number>
@@ -83,16 +84,25 @@ export class DatabaseY extends Dexie {
     constructor() {
         super("Database")
         this.version(1).stores({
+            //accounts: "id, account",
             accounts: listProperties(defaultAccount),
+            //tweets: "id, account",
             tweets: listProperties(defaultTweet)
         })
     }
 
     async init() {
         if (await this.tweets.count() == 0) {
-            this.accounts.clear()
-            this.tweets.clear()
-            await createSeed(this, amountAccounts, amountTweetsAccounts)
+            await this.accounts.clear()
+            await this.tweets.clear()
+
+            let seedCreator = new SeedCreator(this, amountAccounts, amountTweetsAccounts)
+            await seedCreator.createSeed()
         }
+    }
+
+    async clear() {
+        await this.accounts.clear()
+        await this.tweets.clear()
     }
 }

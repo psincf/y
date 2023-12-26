@@ -4,7 +4,7 @@ import styles from "./styles.module.css"
 
 import { useState, useEffect, useContext } from "react"
 
-import { dbContext } from "../context"
+import { dbContext } from "@/app/context"
 import { Tweet } from "@/components/tweet/tweet"
 
 export function Feed({ account }: { account: AccountInterface }) {
@@ -33,15 +33,12 @@ function Tweets({ account }: { account: AccountInterface } ) {
     let db = useContext(dbContext)
 
     useEffect(() => {
-        if (tweetsAndAccount.length > 0) {
-            return
-        }
         let fn = async() => {
             let tweetsCount = await db.tweets.count()
             let TweetAccountsTemp = []
             let tweetsIdTemp = []
             let accountsIdTemp = []
-            for (let i = 0; i < 100; i += 1) {
+            for (let i = 0; i < 50; i += 1) {
                 let id = Math.floor(Math.random() * tweetsCount)
                 tweetsIdTemp.push(id)
             }
@@ -61,7 +58,7 @@ function Tweets({ account }: { account: AccountInterface } ) {
             setTweetsAndAccount(TweetAccountsTemp)
         }
         fn()
-    })
+    }, [db])
 
     let tweetsJSX = []
 

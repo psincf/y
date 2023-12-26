@@ -78,9 +78,9 @@ function FeedContent({ account }: { account: AccountInterface } ) {
     return(
         <>
             <div className={styles.wrapbuttonfeedcontent}>
-                <div className={styles.buttonfeedcontent} onClick={() => { setContentKind(ContentKind.Tweet) }}>Tweets</div>
-                <div className={styles.buttonfeedcontent} onClick={() => { setContentKind(ContentKind.TweetReplies) }}>Tweets & replies</div>
-                <div className={styles.buttonfeedcontent} onClick={() => { setContentKind(ContentKind.Likes) }}>Likes</div>
+                <div className={ clsx(styles.buttonfeedcontent, contentKind == ContentKind.Tweet && styles.active) } onClick={() => { setContentKind(ContentKind.Tweet) }}>Tweets</div>
+                <div className={ clsx(styles.buttonfeedcontent, contentKind == ContentKind.TweetReplies && styles.active) } onClick={() => { setContentKind(ContentKind.TweetReplies) }}>Tweets & replies</div>
+                <div className={ clsx(styles.buttonfeedcontent, contentKind == ContentKind.Likes && styles.active) } onClick={() => { setContentKind(ContentKind.Likes) }}>Likes</div>
             </div>
             <Tweets account={account} kind={contentKind}></Tweets>
         </>

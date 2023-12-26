@@ -4,8 +4,6 @@ import styles from "./styles.module.css"
 
 import { AccountInterface } from "@/db/db"
 
-import { Settings } from "@/components/settings/settings"
-import { Aside } from "@/components/aside/aside"
 import { Feed } from "./feed"
 import { useEffect, useState, useContext } from "react"
 import { dbContext } from "@/app/context"
@@ -23,17 +21,19 @@ export default function Page({ params }: { params: { account: string } }) {
     let feed;
 
     useEffect(() => {
-        if (info == ConnectionStatus.Connecting) {
-            db.accounts.where("account").equals(params.account).first().then((acc) => {
-                if (acc == undefined) {
-                    setInfo(ConnectionStatus.NoAccount)
-                } else {
-                    setInfo(ConnectionStatus.Ok)
-                    setAccount(acc!)
-                    document.title = `${acc.name} @${acc.account}`
-                }
-            })
-        }
+        (async() => {
+            if (info == ConnectionStatus.Connecting) {
+                db.accounts.where("account").equals(params.account).first().then((acc) => {
+                    if (acc == undefined) {
+                        setInfo(ConnectionStatus.NoAccount)
+                    } else {
+                        setInfo(ConnectionStatus.Ok)
+                        setAccount(acc!)
+                        document.title = `${acc.name} @${acc.account}`
+                    }
+                })
+            }
+        })()
     })
 
     if (info == ConnectionStatus.Connecting) {
@@ -47,11 +47,7 @@ export default function Page({ params }: { params: { account: string } }) {
     }
     return(
         <>
-            <div className={styles.page}>
-                <Settings></Settings>
-                {feed}
-                <Aside></Aside>
-            </div>
+            {feed}
         </>
     )
 }
