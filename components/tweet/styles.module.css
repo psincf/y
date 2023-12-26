@@ -4,7 +4,7 @@
     padding: 10px;
     transition: background-color 0.2s;
     border: 1px solid rgb(240, 240, 240);
-    border-width: 1px 0 0 0;
+    border-width: 0 0 1px 0;
 }
 
 .tweet:hover {

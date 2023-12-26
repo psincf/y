@@ -7,6 +7,7 @@ import { AccountInterface } from "@/db/db"
 import { Feed } from "./feed"
 import { useEffect, useState, useContext } from "react"
 import { dbContext } from "@/app/context"
+import { Loading } from "@/components/loading/loading"
 
 enum ConnectionStatus {
     Connecting,
@@ -37,7 +38,7 @@ export default function Page({ params }: { params: { account: string } }) {
     })
 
     if (info == ConnectionStatus.Connecting) {
-        feed = <div className={styles.feed}>Loading...</div>
+        feed = <Loading></Loading>
     }
     else if (info == ConnectionStatus.NoAccount) {
         feed = <div className={styles.feed}>Do not exist</div>

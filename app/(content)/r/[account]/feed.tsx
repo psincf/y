@@ -8,6 +8,7 @@ import styles from "./styles.module.css"
 import { dbContext } from "@/app/context"
 import { useEffect, useRef, useState, useContext } from "react"
 import { Tweet } from "@/components/tweet/tweet"
+import { Loading } from "@/components/loading/loading"
 
 enum ContentKind {
     Tweet,
@@ -16,7 +17,6 @@ enum ContentKind {
 }
 
 export function Feed({ account }: { account: AccountInterface }) {
-
     return(
         <div className={styles.feed}>
             <div className={styles.topfeed}>
@@ -132,7 +132,7 @@ function Tweets({ account, kind }: { account: AccountInterface, kind: ContentKin
 
     let tweetsJSX
     if (kind != prev_kind.current) {
-        tweetsJSX = <p>Loading...</p>
+        tweetsJSX = <Loading></Loading>
     } else {
         tweetsJSX = tweets.map((t) => {
             return(
