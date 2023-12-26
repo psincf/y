@@ -11,6 +11,8 @@ import { Feed } from "./feed"
 import { useEffect, useState, useContext } from "react"
 import { dbContext } from "@/app/context"
 
+import { Loading } from "@/components/loading/loading"
+
 export default function Page() {
     let [localAccount, setLocalAccount] = useState<null | AccountInterface>(null)
 
@@ -27,7 +29,7 @@ export default function Page() {
     }, [db])
 
     if (localAccount == null) {
-        feed = <div className={styles.feed}>Loading...</div>
+        feed = <Loading></Loading>
     } else {
         feed = <Feed account={localAccount}></Feed>
     }

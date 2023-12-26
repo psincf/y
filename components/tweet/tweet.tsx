@@ -25,7 +25,7 @@ export function Tweet({tweet, account }: { tweet: TweetInterface, account: Accou
     let media = <></>
     if (tweet.media) {
         let mediaJSX = convertSVGtoJSX(tweet.media!)
-        media = <div>{mediaJSX}</div>
+        media = <div className={styles.media}>{mediaJSX}</div>
     }
 
     let text = separateSpecialTextTweet(tweet.text)
@@ -37,10 +37,6 @@ export function Tweet({tweet, account }: { tweet: TweetInterface, account: Accou
             return(<span key={t.key}>{t.s}</span>)
         }
     })
-    const tweetJSX = 
-    <>
-    
-    </>
     return(
         <div className={styles.tweet}>
             <Link href={href}>
