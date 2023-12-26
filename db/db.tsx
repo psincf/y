@@ -105,4 +105,9 @@ export class DatabaseY extends Dexie {
         await this.accounts.clear()
         await this.tweets.clear()
     }
+
+    async reset() {
+        await this.clear()
+        await this.init()
+    }
 }

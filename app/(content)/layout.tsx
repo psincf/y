@@ -1,16 +1,16 @@
 "use client"
 
 import { useContext, useEffect, useState } from "react"
-import { dbContext } from "@/app/context"
+import { dbContext, DbLoadedContext } from "@/app/context"
 
 export default function RootLayout({ children } : { children: React.ReactNode }) {
-    let [dbLoaded, setdbLoaded] = useState(false)
+    let [dbLoaded, setDbLoaded] = useState(false)
     let db = useContext(dbContext)
 
     useEffect(() => {
         (async() => {
             await db.init()
-            setdbLoaded(true)
+            setDbLoaded(true)
         })()
     })
 
@@ -19,8 +19,8 @@ export default function RootLayout({ children } : { children: React.ReactNode })
         inner = children
     }
     return(
-        <>
+        <DbLoadedContext.Provider value={ {db: dbLoaded, setDb: setDbLoaded} }>
             { inner }
-        </>
+        </DbLoadedContext.Provider>
     )
 }
