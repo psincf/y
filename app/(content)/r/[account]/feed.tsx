@@ -6,7 +6,7 @@ import clsx from "clsx"
 import styles from "./styles.module.css"
 
 import { dbContext } from "@/app/context"
-import { useEffect, useState, useContext } from "react"
+import { useEffect, useRef, useState, useContext } from "react"
 import { Tweet } from "@/components/tweet/tweet"
 
 enum ContentKind {
@@ -94,6 +94,7 @@ interface TweetAndAccount {
 
 function Tweets({ account, kind }: { account: AccountInterface, kind: ContentKind } ) {
     let [tweets, setTweets] = useState<Array<TweetAndAccount>>([]);
+    let prev_kind = useRef(ContentKind.Tweet)
     let db = useContext(dbContext)
 
     useEffect(() => {
@@ -103,6 +104,7 @@ function Tweets({ account, kind }: { account: AccountInterface, kind: ContentKin
                 for (let t of tweetsQuery) {
                     tempTweets.push({tweet: t!, account: account})
                 }
+                prev_kind.current = kind
                 setTweets(tempTweets)
             })
         } else if (kind == ContentKind.Likes) {
@@ -121,17 +123,23 @@ function Tweets({ account, kind }: { account: AccountInterface, kind: ContentKin
                     let acc = tempAccounts[i]!
                     tempTweetsJSX.push({tweet: t!, account: acc})
                 }
+                prev_kind.current = kind
                 setTweets(tempTweetsJSX)
             })();
             
         }
     }, [db, account, kind])
 
-    let tweetsJSX = tweets.map((t) => {
-        return(
-            <Tweet account={t.account} tweet={t.tweet} key={t.tweet.id}></Tweet>
-        )
-    })
+    let tweetsJSX
+    if (kind != prev_kind.current) {
+        tweetsJSX = <p>Loading...</p>
+    } else {
+        tweetsJSX = tweets.map((t) => {
+            return(
+                <Tweet account={t.account} tweet={t.tweet} key={t.tweet.id}></Tweet>
+            )
+        })
+    }
 
     return(
         <>
