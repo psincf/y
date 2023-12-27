@@ -9,6 +9,7 @@ import { dbContext } from "@/app/context"
 import { useEffect, useRef, useState, useContext } from "react"
 import { Tweet } from "@/components/tweet/tweet"
 import { Loading } from "@/components/loading/loading"
+import { useRouter } from "next/navigation"
 
 enum ContentKind {
     Tweet,
@@ -17,29 +18,24 @@ enum ContentKind {
 }
 
 export function Feed({ account }: { account?: AccountInterface }) {
-    if (account == undefined) {
-        return(
-            <div className={styles.feed}>
-                <div className={styles.topfeed}>
-                    <div>
-                        <Link href="../feed" className={clsx(styles.button, styles.smallbutton)}>{"\u{1F850}"}</Link>
-                    </div>
-                </div>
-                <Loading></Loading>
-            </div>
-        )
-    }
+    let rooter = useRouter()
     return(
         <div className={styles.feed}>
             <div className={styles.topfeed}>
-                <div>
-                    <Link href="../feed" className={clsx(styles.button, styles.smallbutton)}>{"\u{1F850}"}</Link>
+                <div className={styles.backbuttonwrapper}>
+                    <button className={styles.backbutton} onClick={() => { rooter.back() }}>{"\u{1F850}"}</button>
                 </div>
-                <p>{account.account}</p>
+                {account ? <p>{account.account}</p> : null}
             </div>
-            <HeaderAndPhoto account={account}></HeaderAndPhoto>
-            <AccoutInfo account={account}></AccoutInfo>
-            <FeedContent account={account}></FeedContent>
+            { 
+                account ? 
+                    <>
+                        <HeaderAndPhoto account={account}></HeaderAndPhoto>
+                        <AccoutInfo account={account}></AccoutInfo>
+                        <FeedContent account={account}></FeedContent>
+                    </> :
+                        <Loading></Loading>
+            }
         </div>
     )
 }
