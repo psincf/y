@@ -16,7 +16,19 @@ enum ContentKind {
     Likes
 }
 
-export function Feed({ account }: { account: AccountInterface }) {
+export function Feed({ account }: { account?: AccountInterface }) {
+    if (account == undefined) {
+        return(
+            <div className={styles.feed}>
+                <div className={styles.topfeed}>
+                    <div>
+                        <Link href="../feed" className={clsx(styles.button, styles.smallbutton)}>{"\u{1F850}"}</Link>
+                    </div>
+                </div>
+                <Loading></Loading>
+            </div>
+        )
+    }
     return(
         <div className={styles.feed}>
             <div className={styles.topfeed}>
