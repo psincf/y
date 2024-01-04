@@ -15,10 +15,10 @@
 .accountpropositioncontainer > p {
     font-weight: bold;
     font-size: x-large;
+    margin-bottom: 10px;
 }
 
 .accountproposed {
-    margin: 10px 0 10px 0;
     padding: 10px 0 10px 10px;
     display: flex;
     transition: background-color 0.2s;

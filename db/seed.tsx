@@ -1,7 +1,7 @@
 import { AccountInterface, DatabaseY, TweetInterface, SVGInterface, SVGShapeInterface } from "./db"
 
 
-const amountAccounts = 2_000
+const amountAccounts = 200
 const amountTweetsAccounts = 10
 const followingNum = 100
 const tweetsLike = 100
