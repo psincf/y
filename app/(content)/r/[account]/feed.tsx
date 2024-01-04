@@ -22,8 +22,8 @@ export function Feed({ account }: { account?: AccountInterface }) {
     return(
         <div className={styles.feed}>
             <div className={styles.topfeed}>
-                <div className={styles.backbuttonwrapper}>
-                    <button className={styles.backbutton} onClick={() => { rooter.back() }}>{"\u{1F850}"}</button>
+                <div className={styles.backbuttonwrapper} onClick={() => { rooter.back() }}>
+                    <div className={styles.backbutton}>{"\u{1F850}"}</div>
                 </div>
                 {account ? <p>{account.account}</p> : null}
             </div>
@@ -68,7 +68,7 @@ function Photo({ account }: { account: AccountInterface } ) {
 function AccoutInfo({ account }: { account: AccountInterface } ) {
     return(
         <div className={styles.accountinfo}>
-            <p>{account.name}</p>
+            <p className={styles.accountname}>{account.name}</p>
             <p className={styles.grey}>@{account.account}</p>
             <br/>
             <p>{account.headline}</p>
@@ -90,53 +90,57 @@ function FeedContent({ account }: { account: AccountInterface } ) {
                 <div className={ clsx(styles.buttonfeedcontent, contentKind == ContentKind.TweetReplies && styles.active) } onClick={() => { setContentKind(ContentKind.TweetReplies) }}>Tweets & replies</div>
                 <div className={ clsx(styles.buttonfeedcontent, contentKind == ContentKind.Likes && styles.active) } onClick={() => { setContentKind(ContentKind.Likes) }}>Likes</div>
             </div>
-            <Tweets account={account} kind={contentKind}></Tweets>
+            <Tweets accountId={account.id} kind={contentKind}></Tweets>
         </>
     )
 }
 
 interface TweetAndAccount {
     tweet: TweetInterface,
-    account: AccountInterface
+    account: AccountInterface,
+    liked: Boolean
 }
 
-function Tweets({ account, kind }: { account: AccountInterface, kind: ContentKind } ) {
+function Tweets({ accountId, kind }: { accountId: number, kind: ContentKind } ) {
     let [tweets, setTweets] = useState<Array<TweetAndAccount>>([]);
     let prev_kind = useRef(ContentKind.Tweet)
     let db = useContext(dbContext)
 
     useEffect(() => {
-        if (kind == ContentKind.Tweet || kind == ContentKind.TweetReplies) {
-            let tempTweets: Array<TweetAndAccount> = []
-            db.tweets.bulkGet(account.tweets).then((tweetsQuery) => {
-                for (let t of tweetsQuery) {
-                    tempTweets.push({tweet: t!, account: account})
-                }
-                prev_kind.current = kind
-                setTweets(tempTweets)
-            })
-        } else if (kind == ContentKind.Likes) {
-            let tempTweetsJSX: Array<TweetAndAccount> = []
-            let tweets_id = Array.from(account.likes);
-            (async () => {
-                let tempTweets = await db.tweets.bulkGet(tweets_id)
+        (async () => {
+            let account = (await db.getAccount(accountId))!
+            let local_account = (await db.getAccount(0))!
+            if (kind == ContentKind.Tweet || kind == ContentKind.TweetReplies) {
+                let tempTweets: Array<TweetAndAccount> = []
+                db.bulkGetTweet(account.tweets).then((tweetsQuery) => {
+                    for (let t of tweetsQuery) {
+                        tempTweets.push({tweet: t!, account: account, liked: local_account.likes.has(t!.id)})
+                    }
+                    tempTweets.reverse()
+                    prev_kind.current = kind
+                    setTweets(tempTweets)
+                })
+            } else if (kind == ContentKind.Likes) {
+                let tempTweetsJSX: Array<TweetAndAccount> = []
+                let tweets_id = Array.from(account.likes);
+                let tempTweets = await db.bulkGetTweet(tweets_id)
                 let tempAccountsId = []
                 for (const t of tempTweets) {
                     tempAccountsId.push(t!.account)
                 }
-                let tempAccounts = await db.accounts.bulkGet(tempAccountsId)
+                let tempAccounts = await db.bulkGetAccount(tempAccountsId)
 
                 for (var i = 0; i < tempTweets.length; i += 1) {
                     let t = tempTweets[i]
                     let acc = tempAccounts[i]!
-                    tempTweetsJSX.push({tweet: t!, account: acc})
+                    tempTweetsJSX.push({tweet: t!, account: acc, liked: local_account.likes.has(t!.id)})
                 }
                 prev_kind.current = kind
+                tempTweetsJSX.reverse()
                 setTweets(tempTweetsJSX)
-            })();
-            
-        }
-    }, [db, account, kind])
+            }
+        })()
+    }, [db, accountId, kind])
 
     let tweetsJSX
     if (kind != prev_kind.current) {
@@ -144,7 +148,7 @@ function Tweets({ account, kind }: { account: AccountInterface, kind: ContentKin
     } else {
         tweetsJSX = tweets.map((t) => {
             return(
-                <Tweet account={t.account} tweet={t.tweet} key={t.tweet.id}></Tweet>
+                <Tweet account={t.account} tweet={t.tweet} liked={t.liked} key={t.tweet.id}></Tweet>
             )
         })
     }

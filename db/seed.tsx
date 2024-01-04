@@ -1,5 +1,12 @@
 import { AccountInterface, DatabaseY, TweetInterface, SVGInterface, SVGShapeInterface } from "./db"
 
+
+const amountAccounts = 2_000
+const amountTweetsAccounts = 10
+const followingNum = 100
+const tweetsLike = 100
+
+
 const names = [
     "James",
     "John",
@@ -26,31 +33,27 @@ export class SeedCreator {
     accounts: Array<AccountInterface> = []
     tweets: Array<TweetInterface> = []
 
-    constructor(db: DatabaseY, amountAccounts: number, amountTweetsAccounts: number) {
+    constructor(db: DatabaseY) {
         this.db = db
         this.amountAccounts = amountAccounts
         this.amountTweetsAccounts = amountTweetsAccounts
     }
 
     async createSeed() {
-        for (let i = 0; i < this.amountAccounts; i+=1) {
+        let time = Date.now()
+        this.generateLocalAccount()
+        for (let i = 1; i < this.amountAccounts; i+=1) {
             let name = this.generatePseudo()
             let headline = this.generateText(8)
-            let tweetsAccount = []
-            for (let j = 0; j < this.amountTweetsAccounts; j+=1) {
-                let tweet_id: number = this.tweets.length
-                let tweet = this.createTweet(tweet_id, i)
-                this.tweets.push(tweet)
-                tweetsAccount.push(tweet.id)
-            }
+            let tweetsAccount = new Array()
             const new_account: AccountInterface = {
                 id: i,
                 account: name,
                 name: name,
                 header: this.createSVG(),
-                photo: this.createSVG(),
+                photo: this.createSVGPhoto(),
                 headline: headline,
-                dateCreation: new Date(),
+                dateCreation: new Date(Date.now() - 40_000_000_000),
                 followers: 0,
                 following: new Set(),
                 tweets: tweetsAccount,
@@ -58,10 +61,27 @@ export class SeedCreator {
             }
             this.accounts.push(new_account)
         }
+
+        console.log("a", (Date.now() - time) / 1_000)
+
+        const dateMin = Date.now() - 40_000_000_000
+        const dateMax = Date.now()
+        const numTweets = this.amountTweetsAccounts * this.accounts.length
     
+        for (let j = 0; j < numTweets; j+=1) {
+            let date = new Date((dateMax - dateMin) * (j / numTweets) + dateMin)
+            let accountId = Math.max(Math.floor(Math.random() * (this.accounts.length - 1)), 1)
+            let tweet_id: number = this.tweets.length
+            let tweet = this.createTweet(tweet_id, accountId, date)
+            this.tweets.push(tweet)
+            this.accounts[accountId].tweets.push(tweet.id)
+        }
+        console.log("b", (Date.now() - time) / 1_000)
+
         for (var ac of this.accounts) {
+            if (ac.id == 0) { continue }
             let following = []
-            let following_num = Math.floor(Math.random() * this.amountAccounts)
+            let following_num = Math.floor(Math.random() * followingNum)
     
             for (let i = 0; i < following_num; i += 1) {
                 let to_follow = Math.floor(Math.random() * this.amountAccounts)
@@ -70,21 +90,25 @@ export class SeedCreator {
                 this.accounts[to_follow].followers += 1
             }
     
-            let tweets_num = Math.floor(Math.random() * 200)
+            let tweets_num = Math.floor(Math.random() * tweetsLike)
             let tweetsCount = this.tweets.length
             for (let i = 0; i < tweets_num; i += 1) {
                 let tweet = this.tweets[Math.floor(Math.random() * tweetsCount)]
                 ac.likes.add(tweet.id)
-                tweet.likes.add(ac.id)
+                this.tweets[Math.floor(Math.random() * tweetsCount)].likes.add(ac.id)
             }
         }
 
+        console.log("1", (Date.now() - time) / 1_000)
+
         await this.db.accounts.bulkPut(this.accounts)
         await this.db.tweets.bulkPut(this.tweets)
+
+        console.log("2", (Date.now() - time) / 1_000)
     }
 
     createSVG(): SVGInterface {
-        let amountShapes = Math.max(Math.floor(Math.random() * 100), 50)
+        let amountShapes = Math.max(Math.floor(Math.random() * 10), 5)
         let shapes: Array<SVGShapeInterface> = [];
         let o_c = [Math.random() * 255, Math.random() * 255, Math.random() * 255]
         let background_color = `rgb(
@@ -137,6 +161,72 @@ export class SeedCreator {
         return svg
     }
 
+    createSVGPhoto(): SVGInterface {
+        let shapes: Array<SVGShapeInterface> = [];
+        let o_c = [Math.random() * 255, Math.random() * 255, Math.random() * 255]
+        let background_color = `rgb(
+            ${(Math.random() - 0.5) * 100 + o_c[0]},
+            ${(Math.random() - 0.5) * 100 + o_c[1]},
+            ${(Math.random() - 0.5) * 100 + o_c[2]}
+        )`
+        
+        background_color = `rgb(
+            ${o_c[0] > 128 ? o_c[0] - 64 : o_c[0] + 64},
+            ${o_c[1] > 128 ? o_c[1] - 64 : o_c[1] + 64},
+            ${o_c[2] > 128 ? o_c[2] - 64 : o_c[2] + 64}
+        )`
+
+        shapes.push({
+            kind: "rect",
+            x: 0,
+            y: 0,
+            width: 100,
+            height: 100,
+            style: {
+                fill: background_color
+            }
+        })
+
+        let color = `rgb(
+            ${o_c[0]},
+            ${o_c[1]},
+            ${o_c[2]}
+        )`
+
+        let head: SVGShapeInterface = {
+            kind: "circle",
+            cx: 50,
+            cy: 25,
+            r: 20,
+            style: {
+                fill: color
+            }
+        }
+
+        shapes.push(head)
+
+        let body: SVGShapeInterface = {
+            kind: "ellipse",
+            cx: 50,
+            cy: 90,
+            rx: 30,
+            ry: 50,
+            style: {
+                fill: color
+            }
+        }
+
+        shapes.push(body)
+
+        let svg: SVGInterface = {
+            width: 100,
+            height: 100,
+            shapes: shapes
+        }
+
+        return svg
+    }
+
     generatePseudo(): string {
         let name = names[Math.floor(Math.random() * names.length)]
         let number = Math.floor(Math.random() * 1_000)
@@ -177,14 +267,14 @@ export class SeedCreator {
         return text
     }
 
-    createTweet(id: number, account: number): TweetInterface {
+    createTweet(id: number, account: number, date?: Date): TweetInterface {
         const amountWords = Math.max(Math.floor(Math.random() * 50), 5)
         const text = this.generateText(amountWords)
         const tweet: TweetInterface = {
             id: id,
             account: account,
             text: text,
-            date: new Date(),
+            date: date ? date : new Date(),
             comments: [],
             retweet: [],
             likes: new Set<number>()
@@ -197,5 +287,21 @@ export class SeedCreator {
         }
         
         return tweet
+    }
+
+    generateLocalAccount() {
+        this.accounts.push({
+            id: 0,
+            account: "Me",
+            name: "Me",
+            header: this.createSVG(),
+            photo: this.createSVGPhoto(),
+            headline: "",
+            dateCreation: new Date(),
+            followers: 0,
+            following: new Set(),
+            tweets: new Array(),
+            likes: new Set()
+        })
     }
 }

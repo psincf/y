@@ -23,7 +23,7 @@ export default function Page({ params }: { params: { account: string } }) {
     useEffect(() => {
         (async() => {
             if (info == ConnectionStatus.Connecting) {
-                db.accounts.where("account").equals(params.account).first().then((acc) => {
+                db.getAccountWithStringId(params.account).then((acc) => {
                     if (acc == undefined) {
                         setInfo(ConnectionStatus.NoAccount)
                     } else {

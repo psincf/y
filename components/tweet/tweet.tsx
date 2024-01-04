@@ -1,12 +1,21 @@
 import Image from "next/image"
 import Link from "next/link"
 
+import clsx from "clsx"
+
 import { TweetInterface, AccountInterface } from "@/db/db"
 import { convertSVGtoJSX } from "@/utils/svg"
 
 import styles from "./styles.module.css"
+import { useContext, useState } from "react"
+import { LocalAccountContext, dbContext } from "@/app/context"
 
-export function Tweet({tweet, account }: { tweet: TweetInterface, account: AccountInterface }) {
+export function Tweet({tweet, account, liked }: { tweet: TweetInterface, account: AccountInterface, liked: Boolean }) {
+    let db = useContext(dbContext)
+    let [likedState, setLikedState] = useState<Boolean>(liked)
+    let [amountLike, setAmountLike] = useState<number>(tweet.likes.size)
+    let { localAccount } = useContext(LocalAccountContext)
+    
     let href = `/r/${account.account}`
     let time_elpased = Math.floor((Date.now() - tweet.date.valueOf()) / 1_000)
     let time_string;
@@ -37,21 +46,36 @@ export function Tweet({tweet, account }: { tweet: TweetInterface, account: Accou
             return(<span key={t.key}>{t.s}</span>)
         }
     })
+
+    const likeFn = () => {
+        if (likedState) {
+            db.removeLikeTweet(localAccount!.id, tweet.id)
+            setAmountLike(amountLike - 1)
+        } else {
+            db.likeTweet(localAccount!.id, tweet.id)
+            setAmountLike(amountLike + 1)
+        }
+        setLikedState(!likedState)
+    }
+
+    const retweetFn = () => {
+        
+    }
+
     return(
         <div className={styles.tweet}>
             <Link href={href}>
                 <div className={styles.accountphoto}>{photo}</div>
             </Link>
             <div className={styles.tweetcontent}>
-                <p>{account.name} <span className={styles.grey}>@{account.account} {"\u{00B7}"} {time_string}</span></p>
-                <br/>
-                <p>{textJSX}</p>
+                <p className={styles.accountdetail}><span className={styles.accountname}>{account.name}</span> <span className={styles.grey}>@{account.account} {"\u{00B7}"} {time_string}</span></p>
+                <p className={styles.tweettext}>{textJSX}</p>
                 {media}
                 <div className={styles.tweetinfo}>
-                    <p>{"\u{1f4AC}"} {tweet.comments.length}</p>
-                    <p>{"\u{21BB}"} {tweet.retweet.length}</p>
-                    <p>{"\u{2661}"} {tweet.likes.size}</p>
-                    <p>{"\u{21A5}"}</p>
+                    <div className={styles.tweetinteraction}><div className={styles.icon}>{"\u{1f4AC}"}</div> {tweet.comments.length}</div>
+                    <div className={clsx(styles.tweetinteraction, styles.retweetbtn)}><div className={styles.icon}>{"\u{21BB}"}</div> {tweet.retweet.length}</div>
+                    <div className={clsx(styles.tweetinteraction, styles.likebtn, likedState && styles.liked)} onClick={likeFn}><div className={styles.icon}>{"\u{2661}"}</div> {amountLike}</div>
+                    <div className={styles.tweetinteraction}><div className={styles.icon}>{"\u{21A5}"}</div></div>
                 </div>
             </div>
         </div>

@@ -25,16 +25,75 @@
     border-radius: 10px;
 }
 
+.accountdetail {
+    margin-bottom: 5px;
+}
+
+.accountname {
+    font-weight: bold;
+}
+
 .tweetcontent {
     flex-grow: 1;
+}
+
+.tweettext {
+    white-space: pre-line;
 }
 
 .tweetinfo {
     display: flex;
     flex-direction: row;
     justify-content: space-between;
+    align-items: baseline;
     margin-top: 10px;
     color: grey;
+}
+
+.tweetinteraction {
+    transition: color 0.2s;
+    cursor: pointer;
+    vertical-align: middle;
+    height: 30px;
+}
+
+.tweetinteraction:hover {
+    color: rgb(41, 187, 235);
+}
+
+.tweetinteraction:hover .icon {
+    background-color: rgb(41, 187, 235, 0.25);
+}
+
+.icon {
+    display: inline-block;
+    transition: background-color 0.2s;
+    text-align: center;
+    border: 5px transparent solid;
+    border-radius: 100px;
+    font-size: large;
+    width: 30px;
+    margin-right: -5px;
+}
+
+.retweetbtn:hover {
+    color: rgb(43, 215, 43);
+}
+
+.retweetbtn:hover .icon {
+    background-color: rgb(43, 215, 43, 0.25);
+}
+
+.likebtn:hover {
+    color: rgb(239, 39, 96);
+}
+
+.likebtn:hover .icon {
+    background-color: rgb(239, 39, 96, 0.25);
+}
+
+.liked {
+    color: red;
 }
 
 .grey {

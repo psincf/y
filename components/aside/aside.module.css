@@ -3,7 +3,7 @@
     top: 0;
     height: fit-content;
     margin: 20px 0px 0 20px;
-    flex-basis: 300px;
+    flex-basis: 350px;
 }
 
 .accountpropositioncontainer {
@@ -37,6 +37,16 @@
     background-color: lightgrey;
 }
 
+.accountname {
+    font-weight: bold;
+}
+
 .grey {
     color: grey;
+}
+
+@media screen and (max-width: 1000px) {
+    .aside {
+        display: none;
+    }
 }

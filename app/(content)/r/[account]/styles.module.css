@@ -61,6 +61,10 @@
     margin-left: 10px;
 }
 
+.accountname {
+    font-weight: bold;
+}
+
 .wrapbuttonfeedcontent {
     margin-top: 20px;
     height: 40px;
@@ -88,6 +92,9 @@
 
 .active {
     color: rgb(71, 209, 255);
+    border-width: 0 0 4px 0;
+    border-color: rgb(71, 209, 255);
+    border-style: solid;
 }
 
 .backbuttonwrapper {

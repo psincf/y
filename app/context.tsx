@@ -1,7 +1,16 @@
 import { createContext } from "react";
-import { DatabaseY } from "@/db/db";
+import { AccountInterface, DatabaseWrapper } from "@/db/db";
 
-export const dbContext = createContext(new DatabaseY())
+interface localAccountContextInterface {
+    localAccount: AccountInterface | undefined
+    setLocalAccount: (acc: AccountInterface) => void
+}
+ 
+export const LocalAccountContext = createContext<localAccountContextInterface>({
+    localAccount: undefined,
+    setLocalAccount: (acc: AccountInterface) => {}
+})
+export const dbContext = createContext(new DatabaseWrapper())
 export const DbLoadedContext = createContext({
     db: false,
     setDb: (b: boolean) => {}

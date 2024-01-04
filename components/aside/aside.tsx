@@ -25,12 +25,12 @@ function AccountProposition() {
     
     useEffect(() => {
         let fn = async () => {
-            let count = await db.accounts.count()
+            let count = await db.getAccountCount()
             if (count == 0) { setTimeout(fn, 500); return }
             let accountsTemp = []
             for (let i = 0; i < 3; i += 1) {
                 let id = Math.floor(Math.random() * count);
-                let account = (await db.accounts.get(id))!
+                let account = (await db.getAccount(id))!
                 if (account == undefined) { setTimeout(fn, 500); return }
                 accountsTemp.push(account)
             }
@@ -51,7 +51,7 @@ function AccountProposition() {
 
     return(
         <div className={styles.accountpropositioncontainer}>
-            <p>You may like</p>
+            <p>You might like</p>
             {accountsProposed}
         </div>
     )
@@ -65,7 +65,7 @@ function Account( {account}: {account: AccountInterface} ) {
             <Link href={href} className={styles.accountproposed}>
                 {photo}
                 <div>
-                    <div>{account.name}</div>
+                    <div className={styles.accountname}>{account.name}</div>
                     <div className={styles.grey}>@{account.account}</div>
                 </div>
             </Link>

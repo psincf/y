@@ -47,13 +47,10 @@ function Login() {
             <br/>
 
             <p>You already have an account ?</p>
-            <div className={clsx(styles.specialbutton, styles.loginbutton)}>Login</div>
-            <br/>
-
-            <p>Explore as guest</p>
             <Link href="./feed" className={styles.specialbutton}>
-                Browse feed
+                Login
             </Link>
+            <br/>
         </div>
     )
 }

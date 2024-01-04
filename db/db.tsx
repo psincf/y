@@ -3,9 +3,6 @@ import React from "react"
 import Dexie, { Table } from "dexie"
 import { SeedCreator } from "./seed"
 
-const amountAccounts = 100
-const amountTweetsAccounts = 10
-
 export interface TweetInterface {
     id: number
     account: number
@@ -32,15 +29,20 @@ export interface AccountInterface {
 }
 
 export interface SVGInterface {
-    width?: number,
-    height?: number,
+    width?: number
+    height?: number
     shapes?: Array<SVGShapeInterface>
 }
 
 export interface SVGShapeInterface {
-    kind: "rect"
-    x?: number,
-    y?: number,
+    kind: "rect" | "circle" | "ellipse"
+    x?: number
+    y?: number
+    cx?: number
+    cy?: number
+    r?: number
+    rx?: number
+    ry?: number
     width?: number | string,
     height?: number | string,
     style?: {
@@ -76,38 +78,185 @@ const listProperties = (o: any): string => {
     const propertiesList = Object.keys(o!).join(",")
     return propertiesList
 }
+export var AAA = {
+    b: 0
+}
 
 export class DatabaseY extends Dexie {
+    isInitializing?: Promise<void>
     accounts!: Table<AccountInterface>
     tweets!: Table<TweetInterface>
 
     constructor() {
         super("Database")
         this.version(1).stores({
-            //accounts: "id, account",
-            accounts: listProperties(defaultAccount),
-            //tweets: "id, account",
-            tweets: listProperties(defaultTweet)
+            accounts: "id, account",
+            //accounts: listProperties(defaultAccount),
+            tweets: "id, account",
+            //tweets: listProperties(defaultTweet)
         })
     }
 
     async init() {
-        if (await this.tweets.count() == 0) {
-            await this.accounts.clear()
-            await this.tweets.clear()
+        await this.transaction("rw", this.accounts, this.tweets, async() => {
+            if (await this.tweets.count() == 0) {
+                await this.accounts.clear()
+                await this.tweets.clear()
 
-            let seedCreator = new SeedCreator(this, amountAccounts, amountTweetsAccounts)
-            await seedCreator.createSeed()
-        }
+                let seedCreator = new SeedCreator(this)
+                await seedCreator.createSeed()
+            }
+        })
+    }
+
+    async getAccount(id: number): Promise<AccountInterface | undefined> {
+        return await this.accounts.get(id)
+    }
+
+    async bulkGetAccount(ids: Array<number>): Promise<Array<AccountInterface | undefined>> {
+        return await this.accounts.bulkGet(ids)
+    }
+
+    async getAccountWithStringId(name: string): Promise<AccountInterface | undefined> {
+        return await this.accounts.where("account").equals(name).first()
+    }
+
+    async getAccountCount(): Promise<number> {
+        return await this.accounts.count()
+    }
+
+    async getTweet(id: number) {
+        return await this.tweets.get(id)
+    }
+
+    async getTweetCount() {
+        return await this.tweets.count()
+    }
+
+    async bulkGetTweet(ids: Array<number>): Promise<Array<TweetInterface | undefined>> {
+        return await this.tweets.bulkGet(ids)
+    }
+
+
+    async addTweet(accountId: number, text: string, media?: SVGInterface) {
+        await this.transaction("rw", this.accounts, this.tweets, async() => {
+            let tweetCount = await this.tweets.count()
+            let account = (await this.accounts.get(accountId))!
+            account!.tweets.push(tweetCount)
+
+            let tweet: TweetInterface = {
+                id: tweetCount,
+                account: accountId,
+                text: text,
+                media: media,
+                date: new Date(),
+                comments: new Array(),
+                retweet: new Array(),
+                likes: new Set()
+            }
+
+            await this.tweets.add(tweet)
+            await this.accounts.put(account)
+        })
+    }
+
+    async likeTweet(accountId: number, tweetId: number) {
+        await this.transaction("rw", this.accounts, this.tweets, async() => {
+            let account = (await this.accounts.get(accountId))!
+            let tweet = (await this.tweets.get(tweetId))!
+            
+            account.likes.add(tweetId)
+            tweet.likes.add(accountId)
+
+            await this.accounts.put(account)
+            await this.tweets.put(tweet)
+        })
+    }
+
+    async removeLikeTweet(accountId: number, tweetId: number) {
+        await this.transaction("rw", this.accounts, this.tweets, async() => {
+            let account = (await this.accounts.get(accountId))!
+            let tweet = (await this.tweets.get(tweetId))!
+            
+            account.likes.delete(tweetId)
+            tweet.likes.delete(accountId)
+
+            await this.accounts.put(account)
+            await this.tweets.put(tweet)
+        })
     }
 
     async clear() {
-        await this.accounts.clear()
-        await this.tweets.clear()
+        await this.transaction("rw", this.accounts, this.tweets, async() => {
+            await this.accounts.clear()
+            await this.tweets.clear()
+        })
     }
 
     async reset() {
-        await this.clear()
-        await this.init()
+        await this.transaction("rw", this.accounts, this.tweets, async() => {
+            await this.clear()
+            await this.init()
+        })
+    }
+}
+
+export class DatabaseWrapper {
+    private db: DatabaseY
+
+    constructor() {
+        this.db = new DatabaseY()
+    }
+
+    async init() {
+        await this.db.init()
+    }
+
+    async getAccount(id: number): Promise<AccountInterface | undefined> {
+        return await this.db.getAccount(id)
+    }
+
+    async bulkGetAccount(ids: Array<number>): Promise<Array<AccountInterface | undefined>> {
+        return await this.db.bulkGetAccount(ids)
+    }
+
+    async getAccountWithStringId(name: string): Promise<AccountInterface | undefined> {
+        return await this.db.getAccountWithStringId(name)
+    }
+
+    async getAccountCount(): Promise<number> {
+        return await this.db.getAccountCount()
+    }
+
+    async getTweet(id: number) {
+        return await this.db.getTweet(id)
+    }
+
+    async bulkGetTweet(ids: Array<number>): Promise<Array<TweetInterface | undefined>> {
+        return await this.db.bulkGetTweet(ids)
+    }
+
+    async getTweetCount() {
+        return await this.db.getTweetCount()
+    }
+
+    async addTweet(accountId: number, text: string, media?: SVGInterface) {
+        await this.db.addTweet(accountId, text, media)
+    }
+    
+    async likeTweet(accountId: number, tweetId: number) {
+        await this.db.likeTweet(accountId, tweetId)
+    }
+
+    async removeLikeTweet(accountId: number, tweetId: number) {
+        await this.db.removeLikeTweet(accountId, tweetId)
+    }
+
+    async clear() {
+        await this.db.clear()
+    }
+
+    async reset() {
+        await this.db.reset()
     }
 }
