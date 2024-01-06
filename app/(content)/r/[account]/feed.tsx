@@ -122,7 +122,8 @@ function Tweets({ accountId, kind }: { accountId: number, kind: ContentKind } ) 
                         tweet: t!,
                         account: account,
                         liked: local_account.likes.has(t!.id),
-                        retweeted: local_account.retweets.some(r => r.id == t?.id)})
+                        retweeted: local_account.retweets.some(r => r.id == t?.id)
+                    })
                 }
                 for (let i in reTweetsQuery) {
                     const t = reTweetsQuery[i]
@@ -134,7 +135,8 @@ function Tweets({ accountId, kind }: { accountId: number, kind: ContentKind } ) 
                         tweet: t!,
                         account: accountTweet,
                         liked: local_account.likes.has(t!.id),
-                        retweeted: true})
+                        retweeted: local_account.retweets.some(r => r.id == t?.id)
+                    })
                 }
                 tempTweets.sort((a, b) => {
                     return (a.dateRetweet ? a.dateRetweet : a.tweet.date) < (b.dateRetweet ? b.dateRetweet : b.tweet.date) ? 1 : -1

@@ -3,6 +3,7 @@ import { AccountInterface, DatabaseY, TweetInterface, SVGInterface, SVGShapeInte
 
 const amountAccounts = 200
 const amountTweetsAccounts = 10
+const amountReTweetsAccounts = 2
 const followingNum = 100
 const tweetsLike = 100
 
@@ -96,7 +97,15 @@ export class SeedCreator {
             for (let i = 0; i < tweets_num; i += 1) {
                 let tweet = this.tweets[Math.floor(Math.random() * tweetsCount)]
                 ac.likes.add(tweet.id)
-                this.tweets[Math.floor(Math.random() * tweetsCount)].likes.add(ac.id)
+                this.tweets[tweet.id].likes.add(ac.id)
+            }
+
+            for (let i = 0; i < amountReTweetsAccounts; i += 1) {
+                let tweet = this.tweets[Math.floor(Math.random() * tweetsCount)]
+
+                let date = new Date(dateMax - 40_000_000_000 * Math.random())
+                ac.retweets.push({ id: tweet.id, date: date })
+                this.tweets[tweet.id].retweet.add(ac.id)
             }
         }
 
