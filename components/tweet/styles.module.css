@@ -1,6 +1,4 @@
 .tweet {
-    display: flex;
-    align-items: flex-start;
     padding: 10px;
     transition: background-color 0.2s;
     border: 1px solid rgb(240, 240, 240);
@@ -9,6 +7,15 @@
 
 .tweet:hover {
     background-color: lightgrey;
+}
+
+.tweetinner {
+    display: flex;
+    align-items: flex-start;
+}
+
+.retweettext {
+    color: grey
 }
 
 .accountphoto {
@@ -94,6 +101,10 @@
 
 .liked {
     color: red;
+}
+
+.retweeted {
+    color: rgb(43, 215, 43)
 }
 
 .grey {

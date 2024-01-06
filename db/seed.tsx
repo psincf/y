@@ -57,6 +57,7 @@ export class SeedCreator {
                 followers: 0,
                 following: new Set(),
                 tweets: tweetsAccount,
+                retweets: [],
                 likes: new Set()
             }
             this.accounts.push(new_account)
@@ -276,7 +277,7 @@ export class SeedCreator {
             text: text,
             date: date ? date : new Date(),
             comments: [],
-            retweet: [],
+            retweet: new Set(),
             likes: new Set<number>()
         }
 
@@ -301,6 +302,7 @@ export class SeedCreator {
             followers: 0,
             following: new Set(),
             tweets: new Array(),
+            retweets: [],
             likes: new Set()
         })
     }

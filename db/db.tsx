@@ -10,8 +10,13 @@ export interface TweetInterface {
     media?: SVGInterface,
     date: Date
     comments: Array<number>
-    retweet: Array<number>
+    retweet: Set<number>
     likes: Set<number>
+}
+
+export interface RetweetInterface {
+    id: number,
+    date: Date
 }
 
 export interface AccountInterface {
@@ -25,6 +30,7 @@ export interface AccountInterface {
     followers: number
     following: Set<number>
     tweets: Array<number>
+    retweets: Array<RetweetInterface>
     likes: Set<number>
 }
 
@@ -61,6 +67,7 @@ const defaultAccount: AccountInterface = {
     followers: 0,
     following: new Set(),
     tweets: [],
+    retweets: [],
     likes: new Set()
 }
 
@@ -70,7 +77,7 @@ const defaultTweet: TweetInterface = {
     text: "",
     date: new Date(),
     comments: [],
-    retweet: [],
+    retweet: new Set(),
     likes: new Set()
 }
 
@@ -151,7 +158,7 @@ export class DatabaseY extends Dexie {
                 media: media,
                 date: new Date(),
                 comments: new Array(),
-                retweet: new Array(),
+                retweet: new Set(),
                 likes: new Set()
             }
 
@@ -167,6 +174,35 @@ export class DatabaseY extends Dexie {
             
             account.likes.add(tweetId)
             tweet.likes.add(accountId)
+
+            await this.accounts.put(account)
+            await this.tweets.put(tweet)
+        })
+    }
+
+    async reTweet(accountId: number, tweetId: number) {
+        await this.transaction("rw", this.accounts, this.tweets, async() => {
+            let account = (await this.accounts.get(accountId))!
+            let tweet = (await this.tweets.get(tweetId))!
+            
+            account.retweets.push({ id: tweetId, date: new Date() })
+            tweet.retweet.add(accountId)
+
+            await this.accounts.put(account)
+            await this.tweets.put(tweet)
+        })
+    }
+
+    async removeReTweet(accountId: number, tweetId: number) {
+        await this.transaction("rw", this.accounts, this.tweets, async() => {
+            let account = (await this.accounts.get(accountId))!
+            let tweet = (await this.tweets.get(tweetId))!
+            
+            let index = account.retweets.findIndex(r => { return r.id == tweetId })
+            if (index == -1) { return }
+
+            account.retweets.splice(index, 1)
+            tweet.retweet.delete(accountId)
 
             await this.accounts.put(account)
             await this.tweets.put(tweet)
@@ -246,6 +282,14 @@ export class DatabaseWrapper {
     
     async likeTweet(accountId: number, tweetId: number) {
         await this.db.likeTweet(accountId, tweetId)
+    }
+
+    async reTweet(accountId: number, tweetId: number) {
+        await this.db.reTweet(accountId, tweetId)
+    }
+
+    async removeReTweet(accountId: number, tweetId: number) {
+        await this.db.removeReTweet(accountId, tweetId)
     }
 
     async removeLikeTweet(accountId: number, tweetId: number) {

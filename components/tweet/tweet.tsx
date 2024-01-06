@@ -10,10 +10,12 @@ import styles from "./styles.module.css"
 import { useContext, useState } from "react"
 import { LocalAccountContext, dbContext } from "@/app/context"
 
-export function Tweet({tweet, account, liked }: { tweet: TweetInterface, account: AccountInterface, liked: Boolean }) {
+export function Tweet({tweet, account, liked, retweeted, isRetweet }: { tweet: TweetInterface, account: AccountInterface, liked: Boolean, retweeted: Boolean, isRetweet?: string }) {
     let db = useContext(dbContext)
     let [likedState, setLikedState] = useState<Boolean>(liked)
+    let [reTweetedState, setReTweetedState] = useState<Boolean>(retweeted)
     let [amountLike, setAmountLike] = useState<number>(tweet.likes.size)
+    let [amountReTweet, setAmountReTweet] = useState<number>(tweet.retweet.size)
     let { localAccount } = useContext(LocalAccountContext)
     
     let href = `/r/${account.account}`
@@ -59,23 +61,33 @@ export function Tweet({tweet, account, liked }: { tweet: TweetInterface, account
     }
 
     const retweetFn = () => {
-        
+        if (reTweetedState) {
+            db.removeReTweet(localAccount!.id, tweet.id)
+            setAmountReTweet(amountReTweet - 1)
+        } else {
+            db.reTweet(localAccount!.id, tweet.id)
+            setAmountReTweet(amountReTweet + 1)
+        }
+        setReTweetedState(!reTweetedState)
     }
 
     return(
         <div className={styles.tweet}>
-            <Link href={href}>
-                <div className={styles.accountphoto}>{photo}</div>
-            </Link>
-            <div className={styles.tweetcontent}>
-                <p className={styles.accountdetail}><span className={styles.accountname}>{account.name}</span> <span className={styles.grey}>@{account.account} {"\u{00B7}"} {time_string}</span></p>
-                <p className={styles.tweettext}>{textJSX}</p>
-                {media}
-                <div className={styles.tweetinfo}>
-                    <div className={styles.tweetinteraction}><div className={styles.icon}>{"\u{1f4AC}"}</div> {tweet.comments.length}</div>
-                    <div className={clsx(styles.tweetinteraction, styles.retweetbtn)}><div className={styles.icon}>{"\u{21BB}"}</div> {tweet.retweet.length}</div>
-                    <div className={clsx(styles.tweetinteraction, styles.likebtn, likedState && styles.liked)} onClick={likeFn}><div className={styles.icon}>{"\u{2661}"}</div> {amountLike}</div>
-                    <div className={styles.tweetinteraction}><div className={styles.icon}>{"\u{21A5}"}</div></div>
+            <p className={styles.retweettext}>{isRetweet ? "\u{21BB} " + isRetweet.toString() +  " has retweeted": null}</p>
+                <div className={styles.tweetinner}>
+                <Link href={href}>
+                    <div className={styles.accountphoto}>{photo}</div>
+                </Link>
+                <div className={styles.tweetcontent}>
+                    <p className={styles.accountdetail}><span className={styles.accountname}>{account.name}</span> <span className={styles.grey}>@{account.account} {"\u{00B7}"} {time_string}</span></p>
+                    <p className={styles.tweettext}>{textJSX}</p>
+                    {media}
+                    <div className={styles.tweetinfo}>
+                        <div className={styles.tweetinteraction}><div className={styles.icon}>{"\u{1f4AC}"}</div> {tweet.comments.length}</div>
+                        <div className={clsx(styles.tweetinteraction, styles.retweetbtn, reTweetedState && styles.retweeted)}  onClick={retweetFn}><div className={styles.icon}>{"\u{21BB}"}</div> {amountReTweet}</div>
+                        <div className={clsx(styles.tweetinteraction, styles.likebtn, likedState && styles.liked)} onClick={likeFn}><div className={styles.icon}>{"\u{2661}"}</div> {amountLike}</div>
+                        <div className={styles.tweetinteraction}><div className={styles.icon}>{"\u{21A5}"}</div></div>
+                    </div>
                 </div>
             </div>
         </div>

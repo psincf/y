@@ -96,9 +96,12 @@ function FeedContent({ account }: { account: AccountInterface } ) {
 }
 
 interface TweetAndAccount {
+    isRetweet?: string,
+    dateRetweet?: Date,
     tweet: TweetInterface,
     account: AccountInterface,
-    liked: Boolean
+    liked: Boolean,
+    retweeted: Boolean
 }
 
 function Tweets({ accountId, kind }: { accountId: number, kind: ContentKind } ) {
@@ -112,14 +115,32 @@ function Tweets({ accountId, kind }: { accountId: number, kind: ContentKind } ) 
             let local_account = (await db.getAccount(0))!
             if (kind == ContentKind.Tweet || kind == ContentKind.TweetReplies) {
                 let tempTweets: Array<TweetAndAccount> = []
-                db.bulkGetTweet(account.tweets).then((tweetsQuery) => {
-                    for (let t of tweetsQuery) {
-                        tempTweets.push({tweet: t!, account: account, liked: local_account.likes.has(t!.id)})
-                    }
-                    tempTweets.reverse()
-                    prev_kind.current = kind
-                    setTweets(tempTweets)
+                let tweetsQuery = await db.bulkGetTweet(account.tweets)
+                let reTweetsQuery = await db.bulkGetTweet(account.retweets.map(r => r.id))
+                for (let t of tweetsQuery) {
+                    tempTweets.push({
+                        tweet: t!,
+                        account: account,
+                        liked: local_account.likes.has(t!.id),
+                        retweeted: local_account.retweets.some(r => r.id == t?.id)})
+                }
+                for (let i in reTweetsQuery) {
+                    const t = reTweetsQuery[i]
+                    const t_date = account.retweets[i].date
+                    let accountTweet = (await db.getAccount(t!.account))!
+                    tempTweets.push({
+                        isRetweet: account.account,
+                        dateRetweet: t_date,
+                        tweet: t!,
+                        account: accountTweet,
+                        liked: local_account.likes.has(t!.id),
+                        retweeted: true})
+                }
+                tempTweets.sort((a, b) => {
+                    return (a.dateRetweet ? a.dateRetweet : a.tweet.date) < (b.dateRetweet ? b.dateRetweet : b.tweet.date) ? 1 : -1
                 })
+                prev_kind.current = kind
+                setTweets(tempTweets)
             } else if (kind == ContentKind.Likes) {
                 let tempTweetsJSX: Array<TweetAndAccount> = []
                 let tweets_id = Array.from(account.likes);
@@ -133,7 +154,11 @@ function Tweets({ accountId, kind }: { accountId: number, kind: ContentKind } ) 
                 for (var i = 0; i < tempTweets.length; i += 1) {
                     let t = tempTweets[i]
                     let acc = tempAccounts[i]!
-                    tempTweetsJSX.push({tweet: t!, account: acc, liked: local_account.likes.has(t!.id)})
+                    tempTweetsJSX.push({
+                        tweet: t!,
+                        account: acc,
+                        liked: local_account.likes.has(t!.id),
+                        retweeted: local_account.retweets.some(r => r.id == t?.id)})
                 }
                 prev_kind.current = kind
                 tempTweetsJSX.reverse()
@@ -148,7 +173,7 @@ function Tweets({ accountId, kind }: { accountId: number, kind: ContentKind } ) 
     } else {
         tweetsJSX = tweets.map((t) => {
             return(
-                <Tweet account={t.account} tweet={t.tweet} liked={t.liked} key={t.tweet.id}></Tweet>
+                <Tweet account={t.account} tweet={t.tweet} liked={t.liked} retweeted={t.retweeted} isRetweet={t.isRetweet} key={t.tweet.id}></Tweet>
             )
         })
     }
