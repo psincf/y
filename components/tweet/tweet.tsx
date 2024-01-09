@@ -7,10 +7,13 @@ import { TweetInterface, AccountInterface } from "@/db/db"
 import { convertSVGtoJSX } from "@/utils/svg"
 
 import styles from "./styles.module.css"
-import { useContext, useState } from "react"
+import { MouseEventHandler, useContext, useState } from "react"
 import { LocalAccountContext, dbContext } from "@/app/context"
+import { useRouter } from "next/navigation"
 
 export function Tweet({tweet, account, liked, retweeted, isRetweet }: { tweet: TweetInterface, account: AccountInterface, liked: Boolean, retweeted: Boolean, isRetweet?: string }) {
+    const router = useRouter()
+
     let db = useContext(dbContext)
     let [likedState, setLikedState] = useState<Boolean>(liked)
     let [reTweetedState, setReTweetedState] = useState<Boolean>(retweeted)
@@ -18,7 +21,7 @@ export function Tweet({tweet, account, liked, retweeted, isRetweet }: { tweet: T
     let [amountReTweet, setAmountReTweet] = useState<number>(tweet.retweet.size)
     let { localAccount } = useContext(LocalAccountContext)
     
-    let href = `/r/${account.account}`
+    let hrefAccount = `/r/${account.account}`
     let time_elpased = Math.floor((Date.now() - tweet.date.valueOf()) / 1_000)
     let time_string;
     if (time_elpased < 60) {
@@ -43,13 +46,13 @@ export function Tweet({tweet, account, liked, retweeted, isRetweet }: { tweet: T
     let textJSX = text.map((t) => {
         if (t.s[0] == "@") {
             let link = `../r/${t.s.substring(1)}`
-            return(<Link href={link} key={t.key}>{t.s}</Link>)
+            return(<Link href={link} key={t.key} onClick={(e) => { e.stopPropagation() }}>{t.s}</Link>)
         } else {
             return(<span key={t.key}>{t.s}</span>)
         }
     })
 
-    const likeFn = () => {
+    const likeFn: MouseEventHandler<HTMLDivElement> = (e) => {
         if (likedState) {
             db.removeLikeTweet(localAccount!.id, tweet.id)
             setAmountLike(amountLike - 1)
@@ -58,9 +61,10 @@ export function Tweet({tweet, account, liked, retweeted, isRetweet }: { tweet: T
             setAmountLike(amountLike + 1)
         }
         setLikedState(!likedState)
+        e.stopPropagation()
     }
 
-    const retweetFn = () => {
+    const retweetFn: MouseEventHandler<HTMLDivElement> = (e) => {
         if (reTweetedState) {
             db.removeReTweet(localAccount!.id, tweet.id)
             setAmountReTweet(amountReTweet - 1)
@@ -69,17 +73,24 @@ export function Tweet({tweet, account, liked, retweeted, isRetweet }: { tweet: T
             setAmountReTweet(amountReTweet + 1)
         }
         setReTweetedState(!reTweetedState)
+        e.stopPropagation()
+    }
+
+    const gotoTweet: MouseEventHandler<HTMLDivElement> = (e) => {
+        router.push(`../t/${tweet.id}`)
     }
 
     return(
-        <div className={styles.tweet}>
+        <div className={styles.tweet} onClick={gotoTweet}>
             <p className={styles.retweettext}>{isRetweet ? "\u{21BB} " + isRetweet.toString() +  " has retweeted": null}</p>
                 <div className={styles.tweetinner}>
-                <Link href={href}>
+                <Link href={hrefAccount} onClick={(e) => e.stopPropagation()}>
                     <div className={styles.accountphoto}>{photo}</div>
                 </Link>
                 <div className={styles.tweetcontent}>
-                    <p className={styles.accountdetail}><span className={styles.accountname}>{account.name}</span> <span className={styles.grey}>@{account.account} {"\u{00B7}"} {time_string}</span></p>
+                    <Link href={hrefAccount} onClick={(e) => e.stopPropagation()} className={styles.accountdetail}>
+                        <p><span className={styles.accountname}>{account.name}</span> <span className={styles.grey}>@{account.account} {"\u{00B7}"} {time_string}</span></p>
+                    </Link>
                     <p className={styles.tweettext}>{textJSX}</p>
                     {media}
                     <div className={styles.tweetinfo}>

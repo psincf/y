@@ -1,0 +1,16 @@
+.page {
+    display: flex;
+    width: 100%;
+    flex-direction: row;
+    justify-content: center;
+}
+
+.tweet {
+    padding: 0;
+    margin: 0 10px 0 10px;
+    flex-basis: 600px;
+    max-width: 600px;
+    border: 1px solid rgb(240, 240, 240);
+    border-top: 0;
+    flex-shrink: 1;
+}
