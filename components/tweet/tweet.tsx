@@ -10,8 +10,16 @@ import styles from "./styles.module.css"
 import { MouseEventHandler, useContext, useState } from "react"
 import { LocalAccountContext, dbContext } from "@/app/context"
 import { useRouter } from "next/navigation"
+import { NewTweet } from "../newtweet/newtweet"
 
-export function Tweet({tweet, account, liked, retweeted, isRetweet }: { tweet: TweetInterface, account: AccountInterface, liked: Boolean, retweeted: Boolean, isRetweet?: string }) {
+export function Tweet({tweet, account, liked, retweeted, isRetweet, nextIsReply = false }: {
+    tweet: TweetInterface,
+    account: AccountInterface,
+    liked: Boolean,
+    retweeted: Boolean,
+    isRetweet?: string,
+    nextIsReply: Boolean
+}) {
     const router = useRouter()
 
     let db = useContext(dbContext)
@@ -19,6 +27,8 @@ export function Tweet({tweet, account, liked, retweeted, isRetweet }: { tweet: T
     let [reTweetedState, setReTweetedState] = useState<Boolean>(retweeted)
     let [amountLike, setAmountLike] = useState<number>(tweet.likes.size)
     let [amountReTweet, setAmountReTweet] = useState<number>(tweet.retweet.size)
+    let [reply, setReply] = useState<Boolean>(false)
+    let [nextReplyState, setReplyState] = useState<Boolean>(nextIsReply)
     let { localAccount } = useContext(LocalAccountContext)
     
     let hrefAccount = `/r/${account.account}`
@@ -76,32 +86,50 @@ export function Tweet({tweet, account, liked, retweeted, isRetweet }: { tweet: T
         e.stopPropagation()
     }
 
+    const replyFn: MouseEventHandler<HTMLDivElement> = (e) => {
+        setReply(!reply)
+        e.stopPropagation()
+    }
+
     const gotoTweet: MouseEventHandler<HTMLDivElement> = (e) => {
         router.push(`../t/${tweet.id}`)
     }
 
     return(
-        <div className={styles.tweet} onClick={gotoTweet}>
-            <p className={styles.retweettext}>{isRetweet ? "\u{21BB} " + isRetweet.toString() +  " has retweeted": null}</p>
+        <>
+            <div className={styles.tweet} onClick={gotoTweet}>
+                <p className={styles.retweettext}>{isRetweet ? "\u{21BB} " + isRetweet.toString() +  " has retweeted": null}</p>
                 <div className={styles.tweetinner}>
-                <Link href={hrefAccount} onClick={(e) => e.stopPropagation()}>
-                    <div className={styles.accountphoto}>{photo}</div>
-                </Link>
-                <div className={styles.tweetcontent}>
-                    <Link href={hrefAccount} onClick={(e) => e.stopPropagation()} className={styles.accountdetail}>
-                        <p><span className={styles.accountname}>{account.name}</span> <span className={styles.grey}>@{account.account} {"\u{00B7}"} {time_string}</span></p>
-                    </Link>
-                    <p className={styles.tweettext}>{textJSX}</p>
-                    {media}
-                    <div className={styles.tweetinfo}>
-                        <div className={styles.tweetinteraction}><div className={styles.icon}>{"\u{1f4AC}"}</div> {tweet.comments.length}</div>
-                        <div className={clsx(styles.tweetinteraction, styles.retweetbtn, reTweetedState && styles.retweeted)}  onClick={retweetFn}><div className={styles.icon}>{"\u{21BB}"}</div> {amountReTweet}</div>
-                        <div className={clsx(styles.tweetinteraction, styles.likebtn, likedState && styles.liked)} onClick={likeFn}><div className={styles.icon}>{"\u{2661}"}</div> {amountLike}</div>
-                        <div className={styles.tweetinteraction}><div className={styles.icon}>{"\u{21A5}"}</div></div>
+                    <div className={styles.lefttweet}>
+                        <Link href={hrefAccount} onClick={(e) => e.stopPropagation()}>
+                            <div className={styles.accountphoto}>{photo}</div>
+                        </Link>
+                        {nextIsReply || reply ?
+                            <div className={styles.linereply}>
+                                <svg  width={2} height="100%">
+                                    <rect width={2} height="100%" fill="rgb(192, 192, 192)"/>
+                                </svg>
+                            </div>
+                            : null
+                        }
+                    </div>
+                    <div className={styles.tweetcontent}>
+                        <Link href={hrefAccount} onClick={(e) => e.stopPropagation()} className={styles.accountdetail}>
+                            <p><span className={styles.accountname}>{account.name}</span> <span className={styles.grey}>@{account.account} {"\u{00B7}"} {time_string}</span></p>
+                        </Link>
+                        <p className={styles.tweettext}>{textJSX}</p>
+                        {media}
+                        <div className={styles.tweetinfo}>
+                            <div className={styles.tweetinteraction} onClick={replyFn}><div className={styles.icon}>{"\u{1f4AC}"}</div> {tweet.comments.length}</div>
+                            <div className={clsx(styles.tweetinteraction, styles.retweetbtn, reTweetedState && styles.retweeted)}  onClick={retweetFn}><div className={styles.icon}>{"\u{21BB}"}</div> {amountReTweet}</div>
+                            <div className={clsx(styles.tweetinteraction, styles.likebtn, likedState && styles.liked)} onClick={likeFn}><div className={styles.icon}>{"\u{2661}"}</div> {amountLike}</div>
+                            <div className={styles.tweetinteraction}><div className={styles.icon}>{"\u{21A5}"}</div></div>
+                        </div>
                     </div>
                 </div>
             </div>
-        </div>
+            {reply ? <NewTweet></NewTweet> : <></>}
+        </>
     )
 }
 
@@ -139,4 +167,11 @@ function nextNonAccountCharacter(text: string, position: number): number {
     }
 
     return index
+}
+
+function ReplyTweet() {
+    return (
+        <>
+        </>
+    )
 }

@@ -12,11 +12,21 @@
 
 .tweetinner {
     display: flex;
-    align-items: flex-start;
+    align-items: stretch;
 }
 
 .retweettext {
     color: grey
+}
+
+.lefttweet {
+    display: flex;
+    flex-direction: column;
+}
+
+.linereply {
+    flex-shrink: 10;
+    flex-grow: 10;
 }
 
 .accountphoto {
