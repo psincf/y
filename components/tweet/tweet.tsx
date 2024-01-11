@@ -18,7 +18,7 @@ export function Tweet({tweet, account, liked, retweeted, isRetweet, nextIsReply 
     liked: Boolean,
     retweeted: Boolean,
     isRetweet?: string,
-    nextIsReply: Boolean
+    nextIsReply?: Boolean
 }) {
     const router = useRouter()
 
