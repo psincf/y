@@ -285,7 +285,7 @@ export class SeedCreator {
             account: account,
             text: text,
             date: date ? date : new Date(),
-            comments: [],
+            replies: [],
             retweet: new Set(),
             likes: new Set<number>()
         }

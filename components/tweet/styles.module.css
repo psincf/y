@@ -6,6 +6,11 @@
     cursor: pointer;
 }
 
+.maintweet {
+    font-size: large;
+    cursor: auto;
+}
+
 .tweet:hover {
     background-color: lightgrey;
 }
@@ -25,8 +30,12 @@
 }
 
 .linereply {
-    flex-shrink: 10;
-    flex-grow: 10;
+    flex-shrink: 1;
+    flex-grow: 1;
+}
+
+.linereply svg {
+    margin-left: 20px;
 }
 
 .accountphoto {

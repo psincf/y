@@ -96,6 +96,7 @@ function FeedContent({ account }: { account: AccountInterface } ) {
 }
 
 interface TweetAndAccount {
+    isReply?: number,
     isRetweet?: string,
     dateRetweet?: Date,
     tweet: TweetInterface,
@@ -106,6 +107,7 @@ interface TweetAndAccount {
 
 function Tweets({ accountId, kind }: { accountId: number, kind: ContentKind } ) {
     let [tweets, setTweets] = useState<Array<TweetAndAccount>>([]);
+    let [tweetsReplied, setTweetsRplied] = useState<Map<number, TweetAndAccount>>(new Map());
     let prev_kind = useRef(ContentKind.Tweet)
     let db = useContext(dbContext)
 
@@ -113,11 +115,12 @@ function Tweets({ accountId, kind }: { accountId: number, kind: ContentKind } ) 
         (async () => {
             let account = (await db.getAccount(accountId))!
             let local_account = (await db.getAccount(0))!
-            if (kind == ContentKind.Tweet || kind == ContentKind.TweetReplies) {
+            if (kind == ContentKind.Tweet) {
                 let tempTweets: Array<TweetAndAccount> = []
                 let tweetsQuery = await db.bulkGetTweet(account.tweets)
                 let reTweetsQuery = await db.bulkGetTweet(account.retweets.map(r => r.id))
                 for (let t of tweetsQuery) {
+                    if (t?.isReply) { continue }
                     tempTweets.push({
                         tweet: t!,
                         account: account,
@@ -143,6 +146,36 @@ function Tweets({ accountId, kind }: { accountId: number, kind: ContentKind } ) 
                 })
                 prev_kind.current = kind
                 setTweets(tempTweets)
+            } else if (kind == ContentKind.TweetReplies) {
+                let tempTweetsReplied: Map<number, TweetAndAccount> = new Map()
+                let tempTweets: Array<TweetAndAccount> = []
+                let tweetsQuery = await db.bulkGetTweet(account.tweets)
+                for (let t of tweetsQuery) {
+                    if (t?.isReply) {
+                        let tempTweetReplied = (await db.getTweet(t.isReply))!
+                        let accountTweet = (await db.getAccount(tempTweetReplied.account))!
+                        tempTweetsReplied.set(t.isReply, {
+                            tweet: tempTweetReplied,
+                            account: accountTweet,
+                            liked: local_account.likes.has(tempTweetReplied.id),
+                            retweeted: local_account.retweets.some(r => r.id == tempTweetReplied.id)
+                        })
+                    }
+                    tempTweets.push({
+                        isReply: t?.isReply,
+                        tweet: t!,
+                        account: account,
+                        liked: local_account.likes.has(t!.id),
+                        retweeted: local_account.retweets.some(r => r.id == t?.id)
+                    })
+                }
+                tempTweets.sort((a, b) => {
+                    return (a.dateRetweet ? a.dateRetweet : a.tweet.date) < (b.dateRetweet ? b.dateRetweet : b.tweet.date) ? 1 : -1
+                })
+                prev_kind.current = kind
+                setTweets(tempTweets)
+                setTweetsRplied(tempTweetsReplied)
+                
             } else if (kind == ContentKind.Likes) {
                 let tempTweetsJSX: Array<TweetAndAccount> = []
                 let tweets_id = Array.from(account.likes);
@@ -173,9 +206,21 @@ function Tweets({ accountId, kind }: { accountId: number, kind: ContentKind } ) 
     if (kind != prev_kind.current) {
         tweetsJSX = <Loading></Loading>
     } else {
+        let i = 0
         tweetsJSX = tweets.map((t) => {
+            if (kind == ContentKind.TweetReplies && t.isReply) {
+                let tweetReplied = tweetsReplied.get(t.isReply)!
+                let toReturn =
+                    <div key={i}>
+                        <Tweet account={tweetReplied.account} tweet={tweetReplied.tweet} liked={tweetReplied.liked} retweeted={tweetReplied.retweeted} isRetweet={tweetReplied.isRetweet} nextIsReply={true}></Tweet>
+                        <Tweet account={t.account} tweet={t.tweet} liked={t.liked} retweeted={t.retweeted} isRetweet={t.isRetweet}></Tweet>
+                    </div>
+                i += 1
+                return toReturn
+            }
+            i += 1
             return(
-                <Tweet account={t.account} tweet={t.tweet} liked={t.liked} retweeted={t.retweeted} isRetweet={t.isRetweet} key={t.tweet.id}></Tweet>
+                <Tweet account={t.account} tweet={t.tweet} liked={t.liked} retweeted={t.retweeted} isRetweet={t.isRetweet} key={i - 1}></Tweet>
             )
         })
     }

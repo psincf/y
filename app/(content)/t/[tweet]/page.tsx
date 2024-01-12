@@ -17,8 +17,10 @@ interface TweetInfo {
 
 export default function Page({ params }: { params: { tweet: string } }) {
     let [tweetInfo, setTweetInfo] = useState<null | TweetInfo>(null)
+    let [repliesBefore, setRepliesBefore] = useState<Array<TweetInfo>>([])
+    let [repliesAfter, setRepliesAfter] = useState<Array<TweetInfo>>([])
     let db = useContext(dbContext)
-    let content = <></>;
+    let content = [];
 
     useEffect(() => {
         (async() => {
@@ -36,16 +38,65 @@ export default function Page({ params }: { params: { tweet: string } }) {
                 liked: liked,
                 retweeted: retweeted
             })
+
+            let repliesTweetBefore = (await db.getTweetsReplied(tweetId))!
+            repliesTweetBefore.reverse()
+            let repliesBeforeTemp = []
+            for (const t of repliesTweetBefore) {
+                let accountTweet = (await db.getAccount(t.account))!
+                repliesBeforeTemp.push({
+                    tweet: t,
+                    account: accountTweet,
+                    liked: account.likes.has(t.id),
+                    retweeted: account.retweets.some((r) => r.id == t.id)
+                })
+            }
+            setRepliesBefore(repliesBeforeTemp)
+
+            let repliesTweetAfter = (await db.bulkGetTweet(tweet.replies))!
+            let repliesAfterTemp = []
+            for (const t of repliesTweetAfter) {
+                let accountTweet = (await db.getAccount(t!.account))!
+                repliesAfterTemp.push({
+                    tweet: t!,
+                    account: accountTweet,
+                    liked: account.likes.has(t!.id),
+                    retweeted: account.retweets.some((r) => r.id == t!.id)
+                })
+            }
+            setRepliesAfter(repliesAfterTemp)
         })()
-    })
+    }, [db, params])
 
     if (tweetInfo != null) {
-        content = <Tweet
+        for (const t of repliesBefore) {
+            content.push(<Tweet
+                tweet={t.tweet}
+                account={t.account}
+                liked={t.liked}
+                retweeted={t.retweeted}
+                nextIsReply={true}
+                key={t.tweet.id}
+            ></Tweet>)
+        }
+        content.push(<Tweet
             tweet={tweetInfo!.tweet}
             account={tweetInfo!.account}
             liked={tweetInfo!.liked}
             retweeted={tweetInfo!.retweeted}
-        ></Tweet>
+            mainTweet={true}
+            key={tweetInfo.tweet.id}
+        ></Tweet>)
+        for (const t of repliesAfter) {
+            content.push(<Tweet
+                tweet={t.tweet}
+                account={t.account}
+                liked={t.liked}
+                retweeted={t.retweeted}
+                key={t.tweet.id}
+            ></Tweet>)
+        }
+
     }
     
     return(

@@ -87,6 +87,7 @@ function Tweets({ account }: { account: AccountInterface } ) {
 
     let i = 0
     for (let t of tweetsAndAccount) {
+        if (t.tweet.isReply) { continue }
         i += 1
         tweetsJSX.push(
             <Tweet account={t.account} tweet={t.tweet} liked={t.liked} retweeted={t.retweeted} key={i}></Tweet>

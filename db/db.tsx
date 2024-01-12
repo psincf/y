@@ -1,5 +1,3 @@
-import React from "react"
-
 import Dexie, { Table } from "dexie"
 import { SeedCreator } from "./seed"
 
@@ -9,7 +7,8 @@ export interface TweetInterface {
     text: string
     media?: SVGInterface,
     date: Date
-    comments: Array<number>
+    isReply?: number,
+    replies: Array<number>
     retweet: Set<number>
     likes: Set<number>
 }
@@ -76,7 +75,7 @@ const defaultTweet: TweetInterface = {
     account: 0,
     text: "",
     date: new Date(),
-    comments: [],
+    replies: [],
     retweet: new Set(),
     likes: new Set()
 }
@@ -96,11 +95,13 @@ export class DatabaseY extends Dexie {
 
     constructor() {
         super("Database")
-        this.version(1).stores({
+        this.version(2).stores({
             accounts: "id, account",
-            //accounts: listProperties(defaultAccount),
             tweets: "id, account",
-            //tweets: listProperties(defaultTweet)
+        }).upgrade((tx) => {
+            tx.table("accounts").clear().then(() => {
+                tx.table("tweets").clear()
+            })
         })
     }
 
@@ -136,6 +137,18 @@ export class DatabaseY extends Dexie {
         return await this.tweets.get(id)
     }
 
+    async getTweetsReplied(id: number) {
+        let tweet = (await this.getTweet(id))!
+        let tweets: Array<TweetInterface> = []
+
+        while (tweet.isReply) {
+            tweets.push((await this.getTweet(tweet.isReply))!)
+            tweet = (await this.getTweet(tweet.isReply))!
+        }
+
+        return tweets
+    }
+
     async getTweetCount() {
         return await this.tweets.count()
     }
@@ -145,11 +158,17 @@ export class DatabaseY extends Dexie {
     }
 
 
-    async addTweet(accountId: number, text: string, media?: SVGInterface) {
+    async addTweet(accountId: number, text: string, media?: SVGInterface, reply?: number) {
         await this.transaction("rw", this.accounts, this.tweets, async() => {
             let tweetCount = await this.tweets.count()
             let account = (await this.accounts.get(accountId))!
             account!.tweets.push(tweetCount)
+
+            if (reply) {
+                let tweetReplied = (await this.tweets.get(reply!))!
+                tweetReplied.replies.push(tweetCount)
+                await this.tweets.put(tweetReplied)
+            }
 
             let tweet: TweetInterface = {
                 id: tweetCount,
@@ -157,7 +176,8 @@ export class DatabaseY extends Dexie {
                 text: text,
                 media: media,
                 date: new Date(),
-                comments: new Array(),
+                isReply: reply,
+                replies: new Array(),
                 retweet: new Set(),
                 likes: new Set()
             }
@@ -264,8 +284,12 @@ export class DatabaseWrapper {
         return await this.db.getAccountCount()
     }
 
-    async getTweet(id: number) {
+    async getTweet(id: number): Promise<TweetInterface | undefined> {
         return await this.db.getTweet(id)
+    }
+
+    async getTweetsReplied(id: number): Promise<Array<TweetInterface>> {
+        return await this.db.getTweetsReplied(id)
     }
 
     async bulkGetTweet(ids: Array<number>): Promise<Array<TweetInterface | undefined>> {
@@ -276,8 +300,8 @@ export class DatabaseWrapper {
         return await this.db.getTweetCount()
     }
 
-    async addTweet(accountId: number, text: string, media?: SVGInterface) {
-        await this.db.addTweet(accountId, text, media)
+    async addTweet(accountId: number, text: string, media?: SVGInterface, reply?: number) {
+        await this.db.addTweet(accountId, text, media, reply)
     }
     
     async likeTweet(accountId: number, tweetId: number) {

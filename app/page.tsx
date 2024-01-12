@@ -48,7 +48,7 @@ function Login() {
 
             <p>You already have an account ?</p>
             <Link href="./feed" className={styles.specialbutton}>
-                Login
+                Enter App
             </Link>
             <br/>
         </div>

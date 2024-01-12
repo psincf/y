@@ -4,7 +4,7 @@ import { LocalAccountContext, dbContext } from "@/app/context"
 import { convertSVGtoJSX } from "@/utils/svg"
 import Image from "next/image"
 
-export function NewTweet() {
+export function NewTweet({isReply} : {isReply?: number}) {
     let { localAccount } = useContext(LocalAccountContext)
     let db = useContext(dbContext)
     let photo = convertSVGtoJSX(localAccount?.photo!)
@@ -16,7 +16,7 @@ export function NewTweet() {
     }
 
     let tweetFn = async() => {
-        await db.addTweet(localAccount!.id, textAreaRef.current!.value!)
+        await db.addTweet(localAccount!.id, textAreaRef.current!.value!, undefined, isReply)
         textAreaRef.current!.value! = ""
         window.location.reload()
     }

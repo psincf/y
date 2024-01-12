@@ -40,16 +40,20 @@ export function Settings() {
                 </button>
             </Link>
             <br/>
-            <button type="button" className={styles.button}>
-                <i className={clsx("fi fi-rr-bell", styles.icon)}></i>
-                <span className={styles.settingsname}> Notifications</span>
-            </button>
-            <br/>
-            <button type="button" className={styles.button}>
-                <i className={clsx("fi fi-rr-envelope", styles.icon)}></i>
-                <span className={styles.settingsname}> Messages</span>
-            </button>
-            <br/>
+            {false ? 
+                <>
+                    <button type="button" className={styles.button}>
+                        <i className={clsx("fi fi-rr-bell", styles.icon)}></i>
+                        <span className={styles.settingsname}> Notifications</span>
+                    </button>
+                    <br/>
+                    <button type="button" className={styles.button}>
+                        <i className={clsx("fi fi-rr-envelope", styles.icon)}></i>
+                        <span className={styles.settingsname}> Messages</span>
+                    </button>
+                    <br/>
+                </>
+            : <></>}
             <Link href={hrefProfile}>
                 <button type="button" className={styles.button}>
                     <i className={clsx("fi fi-rr-user", styles.icon)}></i>
@@ -57,11 +61,16 @@ export function Settings() {
                 </button>
             </Link>
             <br/>
-            <button type="button" className={styles.button}>
-                <i className={clsx("fi fi-rr-settings", styles.icon)}></i>
-                <span className={styles.settingsname}> Settings</span>
-            </button>
-            <br/>
+            {false ? 
+                <>
+                    <button type="button" className={styles.button}>
+                        <i className={clsx("fi fi-rr-settings", styles.icon)}></i>
+                        <span className={styles.settingsname}> Settings</span>
+                    </button>
+                    <br/>
+                </>
+                : <></>
+            }
             <button type="button" className={styles.button} onClick={resetDb}>
                 <i className={clsx("fi fi-rr-layers", styles.icon)}></i>
                 <span className={styles.settingsname}> Reset database</span>

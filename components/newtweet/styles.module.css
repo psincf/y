@@ -2,6 +2,9 @@
     display: flex;
     flex-direction: row;
     padding: 10px;
+    border-width: 0 0 1px 0;
+    border-style: solid;
+    border-color: rgb(240, 240, 240);
 }
 
 .photoaccount {

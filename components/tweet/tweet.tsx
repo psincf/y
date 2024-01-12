@@ -12,13 +12,14 @@ import { LocalAccountContext, dbContext } from "@/app/context"
 import { useRouter } from "next/navigation"
 import { NewTweet } from "../newtweet/newtweet"
 
-export function Tweet({tweet, account, liked, retweeted, isRetweet, nextIsReply = false }: {
+export function Tweet({tweet, account, liked, retweeted, isRetweet, nextIsReply = false, mainTweet = false }: {
     tweet: TweetInterface,
     account: AccountInterface,
     liked: Boolean,
     retweeted: Boolean,
     isRetweet?: string,
-    nextIsReply?: Boolean
+    nextIsReply?: Boolean,
+    mainTweet?: Boolean
 }) {
     const router = useRouter()
 
@@ -28,7 +29,6 @@ export function Tweet({tweet, account, liked, retweeted, isRetweet, nextIsReply 
     let [amountLike, setAmountLike] = useState<number>(tweet.likes.size)
     let [amountReTweet, setAmountReTweet] = useState<number>(tweet.retweet.size)
     let [reply, setReply] = useState<Boolean>(false)
-    let [nextReplyState, setReplyState] = useState<Boolean>(nextIsReply)
     let { localAccount } = useContext(LocalAccountContext)
     
     let hrefAccount = `/r/${account.account}`
@@ -92,12 +92,13 @@ export function Tweet({tweet, account, liked, retweeted, isRetweet, nextIsReply 
     }
 
     const gotoTweet: MouseEventHandler<HTMLDivElement> = (e) => {
+        if (mainTweet) { return }
         router.push(`../t/${tweet.id}`)
     }
 
     return(
         <>
-            <div className={styles.tweet} onClick={gotoTweet}>
+            <div className={clsx(styles.tweet, mainTweet && styles.maintweet)} onClick={gotoTweet}>
                 <p className={styles.retweettext}>{isRetweet ? "\u{21BB} " + isRetweet.toString() +  " has retweeted": null}</p>
                 <div className={styles.tweetinner}>
                     <div className={styles.lefttweet}>
@@ -106,8 +107,8 @@ export function Tweet({tweet, account, liked, retweeted, isRetweet, nextIsReply 
                         </Link>
                         {nextIsReply || reply ?
                             <div className={styles.linereply}>
-                                <svg  width={2} height="100%">
-                                    <rect width={2} height="100%" fill="rgb(192, 192, 192)"/>
+                                <svg width={2} height="100%" viewBox="0 0 100 100" preserveAspectRatio="none">
+                                    <rect width={100} height={100} fill="rgb(192, 192, 192)"/>
                                 </svg>
                             </div>
                             : null
@@ -120,7 +121,7 @@ export function Tweet({tweet, account, liked, retweeted, isRetweet, nextIsReply 
                         <p className={styles.tweettext}>{textJSX}</p>
                         {media}
                         <div className={styles.tweetinfo}>
-                            <div className={styles.tweetinteraction} onClick={replyFn}><div className={styles.icon}>{"\u{1f4AC}"}</div> {tweet.comments.length}</div>
+                            <div className={styles.tweetinteraction} onClick={replyFn}><div className={styles.icon}>{"\u{1f4AC}"}</div> {tweet.replies.length}</div>
                             <div className={clsx(styles.tweetinteraction, styles.retweetbtn, reTweetedState && styles.retweeted)}  onClick={retweetFn}><div className={styles.icon}>{"\u{21BB}"}</div> {amountReTweet}</div>
                             <div className={clsx(styles.tweetinteraction, styles.likebtn, likedState && styles.liked)} onClick={likeFn}><div className={styles.icon}>{"\u{2661}"}</div> {amountLike}</div>
                             <div className={styles.tweetinteraction}><div className={styles.icon}>{"\u{21A5}"}</div></div>
@@ -128,7 +129,7 @@ export function Tweet({tweet, account, liked, retweeted, isRetweet, nextIsReply 
                     </div>
                 </div>
             </div>
-            {reply ? <NewTweet></NewTweet> : <></>}
+            {reply ? <NewTweet isReply={tweet.id}></NewTweet> : <></>}
         </>
     )
 }
